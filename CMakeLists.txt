@@ -45,6 +45,10 @@ add_definitions( -DGIT_VERSION=${GIT_VERSION})
 add_definitions( -DGIT_DATETIME=${GIT_DATETIME})
 add_definitions( -DBUILD_DATETIME=${BUILD_DATETIME})
 
+########################################################################
+# 定义全局变量
+set(TOPDIR ${PROJECT_SOURCE_DIR})
+#set(INSTALL_DATADIR ${TOPDIR})
 #########################################################################
 # 增加编译选项，把宏导入源码
 option(WITH_DEBUG "debug flag." ON)

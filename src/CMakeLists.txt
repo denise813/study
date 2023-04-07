@@ -6,10 +6,11 @@ set(libdir ${CMAKE_INSTALL_FULL_LIBDIR})
 set(sysconfdir ${CMAKE_INSTALL_FULL_SYSCONFDIR})
 set(libexecdir ${CMAKE_INSTALL_FULL_LIBEXECDIR})
 set(pkgdatadir ${CMAKE_INSTALL_FULL_DATADIR})
-set(datadir ${CEPH_INSTALL_DATADIR})
+set(datadir ${INSTALL_DATADIR})
 set(prefix ${CMAKE_INSTALL_PREFIX})
+#CMAKE_CURRENT_SOURCE_DIR
 
-
+############################################################################
 set(HAVE_BOOST_CONTEXT OFF)
 set(HAVE_VDDK_CONTEXT OFF)
 set(HAVE_PY_CONTEXT OFF)
@@ -120,11 +121,15 @@ endif(HAVE_PY_CONTEXT)
 #--------------------------------------------------------------------------
 #modlue hello_so
 add_subdirectory(demo_so)
+install(FILES ./demo_so/hello_so.h DESTINATION ${prefix}/include)
+install(TARGETS hello LIBRARY DESTINATION ${prefix}/lib)
 
+#install(TARGETS )
 
 #--------------------------------------------------------------------------
 # 设置测试代码
 if (HAVE_TEST_CONTEXT)
+    add_subdirectory(tests)
 endif(HAVE_TEST_CONTEXT)
 
 
