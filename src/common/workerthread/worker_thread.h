@@ -11,12 +11,6 @@
 using namespace std;
 
 
-namespace yuanshuo
-{
-namespace tools
-{
-
-
 struct WorkerThread
 {
 public:
@@ -50,10 +44,6 @@ public:
 private:
     std::condition_variable m_conditonWorker;
     std::mutex m_mutexWorker;
-};
-
-
-};
 };
 
 

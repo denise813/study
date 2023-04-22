@@ -6,11 +6,6 @@
 using namespace std;
 
 
-namespace yuanshuo
-{
-namespace tools
-{
-
 
 template<typename ... Args>
 static std::string string_format(const std::string &format, Args ... args)
@@ -22,8 +17,6 @@ static std::string string_format(const std::string &format, Args ... args)
 }
 
 
-};
-};
 
 
 #endif

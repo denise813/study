@@ -8,11 +8,6 @@
 using namespace std;
 
 
-namespace yuanshuo
-{
-namespace tools
-{
-
 
 struct cmd_result_t
 {
@@ -28,13 +23,17 @@ struct Forker
     virtual ~Forker();
     virtual int damonize(int argc, char* argv[]);
     int execute(std::string &cmd, cmd_result_t &out);
+    int execute(std::string &cmd, cmd_result_t &out,
+                    int (*callback)(char * buff, int buffSize));
+    int getCurrentExecDir(std::string &ExecDir);
+    int setLDPath(std::string &path);
+    void * loadLD(std::string soName);
+    int unloadLD(void * ldInst);
 // data
 std::string m_modlueName;
 };
 
 
-};
-};
 
 
 #endif

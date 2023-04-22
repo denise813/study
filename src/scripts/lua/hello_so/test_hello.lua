@@ -1,0 +1,4 @@
+require "libhello"
+
+demo.sayHello()
+

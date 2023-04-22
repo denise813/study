@@ -1,3 +1,14 @@
+###########################################################################
+set(CMAKE_CXX_STANDARD 14)
+
+# set(CMAKE_BUILD_TYPE "Debug")
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+if (CMAKE_BUILD_TYPE STREQUAL Debug)
+    add_definitions(-DOS_BSD -DDEBUG)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0")
+endif()
+
 ############################################################################
 # 设置目录
 set(bindir ${CMAKE_INSTALL_FULL_BINDIR})
@@ -52,6 +63,9 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-strict-aliasing -fsigned-char")
 #  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-ignored-qualifiers")
 #  FIND_PACKAGE(Threads)
 # endif()
+
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+#SET(DCMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 ########################################################################
 # 设置依赖
@@ -119,12 +133,19 @@ endif(HAVE_PY_CONTEXT)
 ############################################################################
 # 设置源码
 #--------------------------------------------------------------------------
-#modlue hello_so
-add_subdirectory(demo_so)
-install(FILES ./demo_so/hello_so.h DESTINATION ${prefix}/include)
-install(TARGETS hello LIBRARY DESTINATION ${prefix}/lib)
+#基本库
 
-#install(TARGETS )
+
+#--------------------------------------------------------------------------
+#组件
+# modlue hello_so
+add_subdirectory(demo_so)
+add_subdirectory(plugin/lua/demo_so)
+
+
+
+# modlue httpd
+add_subdirectory(httpd)
 
 #--------------------------------------------------------------------------
 # 设置测试代码

@@ -21,9 +21,7 @@ endif()
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-#set(CURRENT_DIR ${})
-
-
+set(TOP_DIR ${PROJECT_SOURCE_DIR})
 set(CMAKE_CXX_STANDARD 14)
 
 #########################################################################
