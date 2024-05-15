@@ -14,8 +14,8 @@ typedef struct passfs
 }passfs_t;
 
 
-int malloc_passfs(passfs_t **fs);
-void free_passfs(passfs_t *fs);
+int passfs_malloc_fs(passfs_t **fs);
+void passfs_free_fs(passfs_t *fs);
 
 
 #ifdef __cplusplus

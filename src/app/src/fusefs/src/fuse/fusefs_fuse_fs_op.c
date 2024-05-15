@@ -7,13 +7,16 @@
 #include <sys/types.h>
 #include <dirent.h>
 
+#include "src/ysfs_log.h"
 #include "fusefs_fuse.h"
 
 
 static void *fusefs_fuse_init(struct fuse_conn_info *conn,
                 struct fuse_config *cfg)
 {
+    YSFS_TRACE("fusefs_fuse_init enter");
     conn->want |= FUSE_CAP_ATOMIC_O_TRUNC;
+    YSFS_TRACE("fusefs_fuse_init exit");
     return 0;
 }
 
@@ -24,15 +27,20 @@ static void fusefs_fuse_destroy(void *eh)
 static int fusefs_fuse_statfs(const char *path, struct statvfs *s)
 {
     int rc = 0;
-    fusefs_fuse_fs_t * fs = get_fusefs_fuse_fs();
-    vfs_t * vfs = fs->ffs_vfs;
+    fusefs_fuse_fs_t * fs = NULL;
+    vfs_t * vfs = NULL;
 
+    YSFS_TRACE("fusefs_fuse_statfs enter");
+     fs = fusefs_get_fs();
+     vfs = fs->ffs_vfs;
     rc = vfs->vfs_op->stat(vfs->vfs_private, path, s);
     if (rc < 0) {
         rc = -errno;
+        YSFS_ERROR("fusefs_fuse_statfs errno(%d)", rc);
         goto l_out;
     }
     rc = 0;
+    YSFS_TRACE("fusefs_fuse_statfs exit");
 
 l_out:
     return rc;
@@ -41,15 +49,21 @@ l_out:
 static int fusefs_fuse_getattr(const char *path, struct stat * s, struct fuse_file_info *fi)
 {
     int rc = 0;
-    fusefs_fuse_fs_t * fs = get_fusefs_fuse_fs();
-    vfs_t * vfs = fs->ffs_vfs;
+    fusefs_fuse_fs_t * fs = NULL;
+    vfs_t * vfs = NULL;
+
+    YSFS_TRACE("fusefs_fuse_getattr enter");
+    fs = fusefs_get_fs();
+    vfs = fs->ffs_vfs;
 
     rc = vfs->vfs_op->getattr(vfs->vfs_private, path, s);
     if (rc < 0) {
         rc = -errno;
+        YSFS_ERROR("fusefs_fuse_getattr errno(%d)", rc);
         goto l_out;
     }
     rc = 0;
+    YSFS_TRACE("fusefs_fuse_getattr exit");
 
 l_out:
     return rc;
@@ -58,15 +72,21 @@ l_out:
 static int fusefs_fuse_access(const char *path, int mask)
 {
     int rc = 0;
-    fusefs_fuse_fs_t * fs = get_fusefs_fuse_fs();
-    vfs_t * vfs = fs->ffs_vfs;
+    fusefs_fuse_fs_t * fs = NULL;
+    vfs_t * vfs = NULL;
+
+    YSFS_TRACE("fusefs_fuse_access enter");
+    fs = fusefs_get_fs();
+    vfs = fs->ffs_vfs;
 
     rc = vfs->vfs_op->access(vfs->vfs_private, path, mask);
     if (rc < 0) {
         rc = -errno;
+        YSFS_ERROR("fusefs_fuse_access errno(%d)", rc);
         goto l_out;
     }
     rc = 0;
+    YSFS_TRACE("fusefs_fuse_access exit");
 
 l_out:
     return rc;
@@ -75,14 +95,21 @@ l_out:
 static int fusefs_fuse_mkdir(const char *path, mode_t mode)
 {
     int rc = 0;
-    fusefs_fuse_fs_t * fs = get_fusefs_fuse_fs();
-    vfs_t * vfs = fs->ffs_vfs;
+    fusefs_fuse_fs_t * fs = NULL;
+    vfs_t * vfs = NULL;
+
+    YSFS_TRACE("fusefs_fuse_mkdir enter");
+    fs = fusefs_get_fs();
+    vfs = fs->ffs_vfs;
+
     rc = vfs->vfs_op->mkdir(vfs->vfs_private, path, mode);
      if (rc < 0) {
         rc = -errno;
+        YSFS_ERROR("fusefs_fuse_access errno(%d)", rc);
         goto l_out;
     }
     rc = 0;
+    YSFS_TRACE("fusefs_fuse_mkdir exit");
 
 l_out:
     return rc;
@@ -91,17 +118,23 @@ l_out:
 static int fusefs_fuse_opendir(const char *path, struct fuse_file_info *fi)
 {
     int rc = 0;
-    fusefs_fuse_fs_t * fs = get_fusefs_fuse_fs();
-    vfs_t * vfs = fs->ffs_vfs;
-     DIR *dp = NULL;
+    fusefs_fuse_fs_t * fs = NULL;
+    vfs_t * vfs = NULL;
+    DIR *dp = NULL;
+
+    YSFS_TRACE("fusefs_fuse_opendir enter");
+    fs = fusefs_get_fs();
+    vfs = fs->ffs_vfs;
 
     rc = vfs->vfs_op->opendir(vfs->vfs_private, path, &dp);
     if (rc < 0) {
         rc = -errno;
+        YSFS_ERROR("fusefs_fuse_opendir errno(%d)", rc);
         goto l_out;
     }
     fi->fh = (uint64_t)dp;
     rc = 0;
+    YSFS_TRACE("fusefs_fuse_opendir exit");
 
 l_out:
     return 0;
@@ -110,16 +143,23 @@ l_out:
 static int fusefs_fuse_releasedir(const char *path, struct fuse_file_info *fi)
 {
     int rc = 0;
-    fusefs_fuse_fs_t * fs = get_fusefs_fuse_fs();
-    vfs_t * vfs = fs->ffs_vfs;
-    
-    DIR *dp = (DIR*)fi->fh;
+    fusefs_fuse_fs_t * fs = NULL;
+    vfs_t * vfs = NULL;
+    DIR * dp = NULL;
+
+    YSFS_TRACE("fusefs_fuse_releasedir enter");
+    fs = fusefs_get_fs();
+    vfs = fs->ffs_vfs;
+    dp = (DIR*)fi->fh;
+
     rc = vfs->vfs_op->closedir(vfs->vfs_private, dp);
    if (rc < 0) {
         rc = -errno;
+        YSFS_ERROR("fusefs_fuse_releasedir errno(%d)", rc);
         goto l_out;
     }
     rc = 0;
+    YSFS_TRACE("fusefs_fuse_releasedir exit");
 
 l_out:
     return rc;
@@ -133,13 +173,18 @@ static int fusefs_fuse_readdir(
                 enum fuse_readdir_flags flags)
 {
     int rc = 0;
-    fusefs_fuse_fs_t * fs = get_fusefs_fuse_fs();
-    vfs_t * vfs = fs->ffs_vfs;
-    DIR *dp = (DIR*)fi->fh;
+    fusefs_fuse_fs_t * fs = NULL;
+    vfs_t * vfs =NULL;
+    DIR *dp = NULL;
     struct dirent *de = NULL;
     struct stat st;
 
-     while (!vfs->vfs_op->readdir(vfs->vfs_private, dp, &de)) {
+    YSFS_TRACE("fusefs_fuse_releasedir enter");
+    fs = fusefs_get_fs();
+    vfs = fs->ffs_vfs;
+    dp = (DIR*)fi->fh;
+
+    while (!vfs->vfs_op->readdir(vfs->vfs_private, dp, &de)) {
         memset(&st, 0, sizeof(st));
         st.st_ino = de->d_ino;
         st.st_mode = de->d_type << 12;
@@ -147,20 +192,29 @@ static int fusefs_fuse_readdir(
             break;
         }
     }
+    YSFS_TRACE("fusefs_fuse_releasedir exit");
+    
     return 0;
 }
 
 static int fusefs_fuse_rename(const char * from, const char * to, unsigned int flags)
 {
     int rc = 0;
-    fusefs_fuse_fs_t * fs = get_fusefs_fuse_fs();
-    vfs_t * vfs = fs->ffs_vfs;
+    fusefs_fuse_fs_t * fs = NULL;
+    vfs_t * vfs =NULL;
+
+    YSFS_TRACE("fusefs_fuse_rename enter");
+    fs = fusefs_get_fs();
+    vfs = fs->ffs_vfs;
+
     rc = vfs->vfs_op->rename(vfs->vfs_private, from, to);
     if (rc < 0) {
         rc = -errno;
+        YSFS_ERROR("fusefs_fuse_rename errno(%d)", rc);
         goto l_out;
     }
     rc = 0;
+    YSFS_TRACE("fusefs_fuse_rename exit");
 
 l_out:
     return rc;
@@ -169,15 +223,21 @@ l_out:
 static int fusefs_fuse_unlink(const char *path)
 {
     int rc = 0;
-    fusefs_fuse_fs_t * fs = get_fusefs_fuse_fs();
-    vfs_t * vfs = fs->ffs_vfs;
+    fusefs_fuse_fs_t * fs = NULL;
+    vfs_t * vfs =NULL;
+
+    YSFS_TRACE("fusefs_fuse_unlink enter");
+    fs = fusefs_get_fs();
+    vfs = fs->ffs_vfs;
 
     rc = vfs->vfs_op->unlink(vfs->vfs_private, path);
     if (rc < 0) {
         rc = -errno;
+        YSFS_ERROR("fusefs_fuse_unlink errno(%d)", rc);
         goto l_out;
     }
     rc = 0;
+    YSFS_TRACE("fusefs_fuse_unlink exit");
 
 l_out:
     return rc;
@@ -186,20 +246,28 @@ l_out:
 static int fusefs_fuse_open(const char *path, struct fuse_file_info *fi)
 {
     int rc = 0;
-    fusefs_fuse_fs_t * fs = get_fusefs_fuse_fs();
-    vfs_t * vfs = fs->ffs_vfs;
+    fusefs_fuse_fs_t * fs = NULL;
+    vfs_t * vfs =NULL;
+    int * fd = NULL;
 
+    fs = fusefs_get_fs();
+    vfs = fs->ffs_vfs;
     fi->fh = -1;
-    int * fd = (int *)malloc(sizeof(int));
+
+    YSFS_TRACE("fusefs_fuse_open enter");
+    fd = (int *)malloc(sizeof(int));
     *fd = -1;
     rc = vfs->vfs_op->open(vfs->vfs_private, path, fi->flags, fd);
     if (*fd == -1) {
         rc =  -errno;
+        YSFS_ERROR("fusefs_fuse_open errno(%d)", rc);
         goto l_free;
     }
 
     fi->fh = (uint64_t)fd;
     rc = 0;
+    YSFS_TRACE("fusefs_fuse_open exit");
+ 
 l_out:
     return rc;
 l_free:
@@ -211,19 +279,25 @@ l_free:
 static int fusefs_fuse_release(const char *path, struct fuse_file_info *fi)
 {
     int rc = 0;
-    fusefs_fuse_fs_t * fs = get_fusefs_fuse_fs();
-    vfs_t * vfs = fs->ffs_vfs;
+    fusefs_fuse_fs_t * fs = NULL;
+    vfs_t * vfs =NULL;
+    int * fd = NULL;
 
-    int * fd = (int *)fi->fh;
+    YSFS_TRACE("fusefs_fuse_release enter");
+    fs = fusefs_get_fs();
+    vfs = fs->ffs_vfs;
+    fd = (int *)fi->fh;
      rc = vfs->vfs_op->close(vfs->vfs_private, *fd);
     if (rc == -1) {
         *fd = -1;
         rc = -errno;
+        YSFS_ERROR("fusefs_fuse_release errno(%d)", rc);
         goto l_free;
     }
     *fd = -1;
     free(fd);
     rc = 0;
+    YSFS_TRACE("fusefs_fuse_release exit");
 
 l_out:
     return rc;
@@ -237,17 +311,24 @@ static int fusefs_fuse_read(const char *path, char *buf, size_t size,
         off_t off, struct fuse_file_info *fi)
 {
     int rc = 0;
-    fusefs_fuse_fs_t * fs = get_fusefs_fuse_fs();
-    vfs_t * vfs = fs->ffs_vfs;
+    fusefs_fuse_fs_t * fs = NULL;
+    vfs_t * vfs =NULL;
     ssize_t read_isze = 0;
-    int * fd = (int *)fi->fh;
+    int * fd = NULL;
 
+    YSFS_TRACE("fusefs_fuse_read enter");
+    fs = fusefs_get_fs();
+    vfs = fs->ffs_vfs;
+    fd = (int *)fi->fh;
+    
     read_isze = vfs->vfs_op->read(vfs->vfs_private, *fd, buf, size, off);
     if (read_isze < 0) {
         rc= (int)read_isze;
+        YSFS_ERROR("fusefs_fuse_read errno(%d)", rc);
         goto l_out;
     }
     rc = (int)read_isze;
+    YSFS_TRACE("fusefs_fuse_read exit");
 
 l_out:
      return rc;
@@ -257,17 +338,24 @@ static int fusefs_fuse_write(const char *path, const char *buff, size_t size,
         off_t off, struct fuse_file_info *fi)
 {
     int rc = 0;
-    fusefs_fuse_fs_t * fs = get_fusefs_fuse_fs();
-    vfs_t * vfs = fs->ffs_vfs;
+    fusefs_fuse_fs_t * fs = NULL;
+    vfs_t * vfs =NULL;
     ssize_t write_isze = 0;
-    int * fd = (int *)fi->fh;
+    int * fd = NULL;
+
+    YSFS_TRACE("fusefs_fuse_read enter");
+    fs = fusefs_get_fs();
+    vfs = fs->ffs_vfs;
+    fd = (int *)fi->fh;
 
     write_isze = vfs->vfs_op->write(vfs->vfs_private, *fd, buff, size, off);
     if (write_isze < 0) {
         rc= (int)write_isze;
+        YSFS_ERROR("fusefs_fuse_read errno(%d)", rc);
         goto l_out;
     }
     rc = (int)write_isze;
+    YSFS_TRACE("fusefs_fuse_read exit");
 
 l_out:
     return rc;
@@ -278,15 +366,23 @@ static int fusefs_fuse_fsync(const char *path, int isdatasync,
         struct fuse_file_info *fi)
 {
     int rc = 0;
-    fusefs_fuse_fs_t * fs = get_fusefs_fuse_fs();
-    vfs_t * vfs = fs->ffs_vfs;
-    int * fd = (int *)fi->fh;
+    fusefs_fuse_fs_t * fs = NULL;
+    vfs_t * vfs =NULL;
+    int * fd = NULL;
+
+    YSFS_TRACE("fusefs_fuse_fsync enter");
+    fs = fusefs_get_fs();
+    vfs = fs->ffs_vfs;
+    fd = (int *)fi->fh;
 
     rc = vfs->vfs_op->fsync(vfs->vfs_private, *fd, 1);
     if (rc < 0) {
+        YSFS_ERROR("fusefs_fuse_fsync errno(%d)", rc);
         goto l_out;
     }
     rc = 0;
+    YSFS_TRACE("fusefs_fuse_fsync enter");
+
 l_out:
     return rc;
 }
@@ -294,12 +390,16 @@ l_out:
 static int fusefs_fuse_create(const char *path, mode_t mode, struct fuse_file_info *fi)
 {
     int rc = 0;
+
+    YSFS_TRACE("fusefs_fuse_create enter");
     rc = fusefs_fuse_open(path, fi);
     if (rc < 0) {
+        YSFS_ERROR("fusefs_fuse_open failed errno(%)", rc);
         goto l_out;
     }
     fusefs_fuse_release(path, fi);
     rc = 0;
+    YSFS_TRACE("fusefs_fuse_create exit");
 
 l_out:
     return rc;
@@ -309,16 +409,22 @@ static int fusefs_fuse_ftruncate(const char *path, off_t size,
         struct fuse_file_info *fi)
 {
     int rc = 0;
-    fusefs_fuse_fs_t * fs = get_fusefs_fuse_fs();
-    vfs_t * vfs = fs->ffs_vfs;
-    int * fd = (int *)fi->fh;
+    fusefs_fuse_fs_t * fs = NULL;
+    vfs_t * vfs =NULL;
+    int * fd = NULL;
+
+    YSFS_TRACE("fusefs_fuse_create enter");
+    fs = fusefs_get_fs();
+    vfs = fs->ffs_vfs;
+    fd = (int *)fi->fh;
 
     rc = vfs->vfs_op->ftruncate(vfs->vfs_private, *fd, size);
      if (rc < 0) {
-        rc = -errno;
+        YSFS_ERROR("fusefs_fuse_open failed errno(%)", rc);
         goto l_out;
     }
     rc = 0;
+     YSFS_TRACE("fusefs_fuse_create exit");
 
 l_out:
     return rc;
@@ -327,15 +433,20 @@ l_out:
 static int fusefs_fuse_truncate(const char * path, off_t size, struct fuse_file_info *fi)
 {
     int rc = 0;
-    fusefs_fuse_fs_t * fs = get_fusefs_fuse_fs();
-    vfs_t * vfs = fs->ffs_vfs;
+    fusefs_fuse_fs_t * fs = NULL;
+    vfs_t * vfs =NULL;
+
+    YSFS_TRACE("fusefs_fuse_create enter");
+    fs = fusefs_get_fs();
+    vfs = fs->ffs_vfs;
 
     rc = vfs->vfs_op->truncate(vfs->vfs_private, path, size);
      if (rc < 0) {
-        rc = -errno;
+        YSFS_ERROR("fusefs_fuse_truncate failed errno(%)", rc);
         goto l_out;
     }
     rc = 0;
+     YSFS_TRACE("fusefs_fuse_create exit");
 
 l_out:
     return rc;
@@ -344,15 +455,20 @@ l_out:
 static int fusefs_fuse_symlink(const char *from, const char *to)
 {
     int rc = 0;
-    fusefs_fuse_fs_t * fs = get_fusefs_fuse_fs();
-    vfs_t * vfs = fs->ffs_vfs;
+    fusefs_fuse_fs_t * fs = NULL;
+    vfs_t * vfs =NULL;
+
+    YSFS_TRACE("fusefs_fuse_symlink enter");
+    fs = fusefs_get_fs();
+    vfs = fs->ffs_vfs;
 
     rc = vfs->vfs_op->symlink(vfs->vfs_private, from, to);
     if (rc < 0) {
-        rc = -errno;
+        YSFS_ERROR("fusefs_fuse_truncate failed errno(%)", rc);
         goto l_out;
     }
     rc = 0;
+     YSFS_TRACE("fusefs_fuse_symlink exit");
     
 l_out:
     return rc;
@@ -361,15 +477,20 @@ l_out:
 static int fusefs_fuse_link(const char *from, const char *to)
 {
     int rc =0;
-    fusefs_fuse_fs_t * fs = get_fusefs_fuse_fs();
-    vfs_t * vfs = fs->ffs_vfs;
+    fusefs_fuse_fs_t * fs = NULL;
+    vfs_t * vfs =NULL;
+
+    YSFS_TRACE("fusefs_fuse_link enter");
+    fs = fusefs_get_fs();
+    vfs = fs->ffs_vfs;
 
     rc = vfs->vfs_op->link(vfs->vfs_private, from, to);
     if (rc < 0) {
-        rc = -errno;
+        YSFS_ERROR("fusefs_fuse_link failed errno(%)", rc);
         goto l_out;
     }
     rc = 0;
+    YSFS_TRACE("fusefs_fuse_link exit");
     
 l_out:
     return rc;
@@ -379,14 +500,19 @@ static int fusefs_fuse_mknod(const char *path, mode_t mode, dev_t dev)
 {
     // not supported, fail
     int rc =0;
-    fusefs_fuse_fs_t * fs = get_fusefs_fuse_fs();
-    vfs_t * vfs = fs->ffs_vfs;
+    fusefs_fuse_fs_t * fs = NULL;
+    vfs_t * vfs =NULL;
+
+    YSFS_TRACE("fusefs_fuse_mknod enter");
+    fs = fusefs_get_fs();
+    vfs = fs->ffs_vfs;
 
     rc = vfs->vfs_op->mknod(vfs->vfs_private, path, mode, dev);
     if (rc < 0) {
-        rc = -errno;
+        YSFS_ERROR("fusefs_fuse_mknod failed errno(%)", rc);
         goto l_out;
     }
+    YSFS_TRACE("fusefs_fuse_mknod exit");
     rc = 0;
 l_out:
     return rc;
@@ -395,15 +521,21 @@ l_out:
 static int fusefs_fuse_chmod(const char * path, mode_t mode, struct fuse_file_info *fi)
 {
     int rc =0;
-    fusefs_fuse_fs_t * fs = get_fusefs_fuse_fs();
-    vfs_t * vfs = fs->ffs_vfs;
+    fusefs_fuse_fs_t * fs = NULL;
+    vfs_t * vfs =NULL;
 
+    YSFS_TRACE("fusefs_fuse_chmod enter");
+    fs = fusefs_get_fs();
+    vfs = fs->ffs_vfs;
+    
     rc = vfs->vfs_op->chmod(vfs->vfs_private, path, mode);
     if (rc < 0) {
-        rc = -errno;
+        YSFS_ERROR("fusefs_fuse_chmod failed errno(%)", rc);
         goto l_out;
     }
     rc = 0;
+    YSFS_TRACE("fusefs_fuse_chmod exit");
+
 l_out:
     return rc;
 }
@@ -411,21 +543,29 @@ l_out:
 static int fusefs_fuse_chown(const char *path, uid_t uid, gid_t gid, struct fuse_file_info *fi)
 {
     int rc = 0;
-    fusefs_fuse_fs_t * fs = get_fusefs_fuse_fs();
-    vfs_t * vfs = fs->ffs_vfs;
+    fusefs_fuse_fs_t * fs = NULL;
+    vfs_t * vfs =NULL;
 
+    YSFS_TRACE("fusefs_fuse_chown enter");
+    fs = fusefs_get_fs();
+    vfs = fs->ffs_vfs;
+    
     rc = vfs->vfs_op->chown(vfs->vfs_private, path, uid, gid);
     if (rc < 0) {
-        rc = -errno;
+        YSFS_ERROR("fusefs_fuse_chmod failed errno(%)", rc);
         goto l_out;
     }
     rc = 0;
+    YSFS_TRACE("fusefs_fuse_chown exit");
+ 
 l_out:
     return rc;
 }
 
 static int fusefs_fuse_utimens(const char *path, const struct timespec ts[2], struct fuse_file_info *fi)
 {
+     YSFS_TRACE("fusefs_fuse_utimens enter");
+     YSFS_TRACE("fusefs_fuse_utimens exit");
     return 0;
 }
 
@@ -463,7 +603,7 @@ static struct fuse_operations g_fusefs_fuse_op = {
 };
 
 
-struct fuse_operations * get_fusefs_fuse_fs_op()
+struct fuse_operations * fusefs_get_fs_op()
 {
     return &g_fusefs_fuse_op;
 }

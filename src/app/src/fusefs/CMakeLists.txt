@@ -34,6 +34,17 @@ set (CODE_SRC ${FUSE_SRC_CODES}
     ${SRC_DIR}/ysfs_config.c)
 
 add_executable(${BIN_NAME} ${CURRENTDIR}/fusefs_main.c ${CODE_SRC})
-target_link_libraries(${BIN_NAME} fuse3)
+target_link_libraries(${BIN_NAME} pthread dl)
+target_link_libraries(${BIN_NAME} ${LIBFUSE_SRC_DIR}/libfuse3.a)
 
+
+file(COPY ${LIBFUSE_SRC_DIR}/libfuse3.so.3 DESTINATION ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/) 
+file(COPY ${LIBFUSE_SRC_DIR}/libfuse3.so DESTINATION ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/) 
+
+#INSTALL(TARGETS ${BIN_NAME}
+#    RUNTIME DESTINATION bin
+#    LIBRARY DESTINATION lib
+#)
+
+#target_link_libraries(${BIN_NAME} PRIVATE ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
 

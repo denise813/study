@@ -54,10 +54,10 @@ help_option_t g_option_helps[] = {
 int cmd_parse_configure(int argc, char *argv[], ysfs_config_t * config)
 {
     int rc = 0;
-    int option_index = 0;
     int opt_value = 0;
     char * cmd = argv[0];
     char * context = NULL;
+    int option_index = 0;
 
     if (argc < 1) {
         rc = -EINVAL;
@@ -77,30 +77,30 @@ int cmd_parse_configure(int argc, char *argv[], ysfs_config_t * config)
         switch(opt_value) {
             case YSFS_YSFS_OPT_VALUE_DEV:
                 context = optarg;
-                g_option_helps[option_index].hasflag = TRUE;
+                g_option_helps[YSFS_YSFS_OPT_VALUE_DEV].hasflag = TRUE;
                 config->ysc_dev = strdup(context);
                 YSFS_INFO("configure parse dev=%s, mandatory=%d.",
                                 context,
-                                g_option_helps[option_index].requested);
+                                g_option_helps[YSFS_YSFS_OPT_VALUE_DEV].requested);
                 break;
             case YSFS_OPT_VALUE_MOUNT_POINT:
                 context =  optarg;
                 config->ysc_mount_point = strdup(context);
-                g_option_helps[option_index].hasflag = TRUE;
+                g_option_helps[YSFS_OPT_VALUE_MOUNT_POINT].hasflag = TRUE;
                 YSFS_INFO("configure parse moutpoint=%s, mandatory=%d.",
                                 context,
-                                g_option_helps[option_index].requested);
+                                g_option_helps[YSFS_OPT_VALUE_MOUNT_POINT].requested);
                 break;
             case YSFS_OPT_VALUE_FS_NAME:
                 context =  optarg;
                 config->ysc_fs_name = strdup(context);
-                g_option_helps[option_index].hasflag = TRUE;
+                g_option_helps[YSFS_OPT_VALUE_FS_NAME].hasflag = TRUE;
                 YSFS_INFO("configure parse fs=%s, mandatory=%d.",
                                 context,
-                                g_option_helps[option_index].requested);
+                                g_option_helps[YSFS_OPT_VALUE_FS_NAME].requested);
                 break;
             case YSFS_OPT_VALUE_HELP:
-                g_option_helps[option_index].hasflag = TRUE;
+                g_option_helps[YSFS_OPT_VALUE_HELP].hasflag = TRUE;
                 config->ysc_has_help = 1;
                 YSFS_INFO("configure help.");
                 return 0;

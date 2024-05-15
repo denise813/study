@@ -19,8 +19,8 @@ typedef struct vfs
 }vfs_t;
 
 
-int malloc_vfs(char * fs_name, vfs_t **fs);
-void free_vfs(vfs_t *fs);
+int vfs_malloc_fs(char * fs_name, vfs_t **fs);
+void vfs_free_fs(vfs_t *fs);
 
 
 #ifdef __cplusplus

@@ -2,6 +2,9 @@
 #define YSFS_LOG_H
 
 
+#include <stdio.h>
+
+
 #ifdef __cplusplus
 extern "C"
 {

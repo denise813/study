@@ -37,13 +37,13 @@ int main(int argc, char *argv[])
     }
 
     trans_fuse_config(fs_config, &fuse_config);
-    malloc_fusefs_fuse_fs(&fuse_config, &fs);
+    fusefs_malloc_fs(&fuse_config, &fs);
     fs->init(fs);
     fs->mount(fs);
     fs->run(argc, argv, fs);
     fs->umount(fs);
     fs->exit(fs);
-    free_fusefs_fuse_fs(fs);
+    fusefs_free_fs(fs);
     free_ys_config(fs_config);
     rc = 0;
 

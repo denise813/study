@@ -43,7 +43,7 @@ int fusedev_fuse_write(
 }
 
 
-int malloc_fusefs_fuse_blockdev(fusefs_fuse_blockdev_config_t * config, fusefs_fuse_blockdev_t** bdev)
+int fusedev_malloc_blockdev(fusefs_fuse_blockdev_config_t * config, fusefs_fuse_blockdev_t** bdev)
 {
     fusefs_fuse_blockdev_t * entry = NULL;
 
@@ -60,7 +60,7 @@ int malloc_fusefs_fuse_blockdev(fusefs_fuse_blockdev_config_t * config, fusefs_f
     return 0;
 }
 
-void free_fusefs_fuse_blockdev(fusefs_fuse_blockdev_t * bdev)
+void fusedev_free_blockdev(fusefs_fuse_blockdev_t * bdev)
 {
      bdev->fbdev_config = NULL;
      free(bdev);

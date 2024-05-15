@@ -24,6 +24,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_CXX_STANDARD 14)
 set(TOP ${CMAKE_CURRENT_SOURCE_DIR})
 
+
 ########################################################################
 #set (Tutorial_VERSION_MAJOR 1)
 #set (Tutorial_VERSION_MINOR 0)

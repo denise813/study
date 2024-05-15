@@ -39,7 +39,6 @@ typedef struct fusefs_fuse_fs
 {
     fusefs_fuse_fs_config_t * ffs_config;
     fusefs_fuse_blockdev_t *  ffs_bdev;
-    struct fuse_session *ffs_session;
     struct fuse_operations * ffs_op;
     vfs_t * ffs_vfs;
     int (*mount)(struct fusefs_fuse_fs*);
@@ -50,13 +49,13 @@ typedef struct fusefs_fuse_fs
 }fusefs_fuse_fs_t;
 
 
-int malloc_fusefs_fuse_fs(fusefs_fuse_fs_config_t *, fusefs_fuse_fs_t**);
-void free_fusefs_fuse_fs(fusefs_fuse_fs_t *);
-fusefs_fuse_fs_t* get_fusefs_fuse_fs();
-struct fuse_operations * get_fusefs_fuse_fs_op();
+int fusefs_malloc_fs(fusefs_fuse_fs_config_t *, fusefs_fuse_fs_t**);
+void fusefs_free_fs(fusefs_fuse_fs_t *);
+fusefs_fuse_fs_t* fusefs_get_fs();
+struct fuse_operations * fusefs_get_fs_op();
 
-int malloc_fusefs_fuse_blockdev(fusefs_fuse_blockdev_config_t *, fusefs_fuse_blockdev_t**);
-void free_fusefs_fuse_blockdev(fusefs_fuse_blockdev_t *);
+int fusedev_malloc_blockdev(fusefs_fuse_blockdev_config_t *, fusefs_fuse_blockdev_t**);
+void fusedev_free_blockdev(fusefs_fuse_blockdev_t *);
 
 
 
