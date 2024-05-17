@@ -24,13 +24,18 @@ static int fusefs_register_bdev(struct fusefs_fuse_fs * fs)
     fusedev_malloc_blockdev(cbdev, &bdev);
 
     fs->ffs_bdev = bdev;
+    //fs->ffs_vfs->vfs_block = fs->ffs_bdev;
     YSFS_TRACE("fusefs_fuse_register_bdev exit");
     return 0;
 }
 
 static int fusefs_unregister_bdev(struct fusefs_fuse_fs * fs)
 {
+    int rc = 0;
     YSFS_TRACE("fusefs_fuse_unregister_bdev enter");
+    if (fs->ffs_bdev ==NULL) {
+        goto l_out;
+    }
     if (fs->ffs_bdev->fbdev_config->fb_bdev) {
         free(fs->ffs_bdev->fbdev_config->fb_bdev);
     }
@@ -38,8 +43,10 @@ static int fusefs_unregister_bdev(struct fusefs_fuse_fs * fs)
         free(fs->ffs_bdev->fbdev_config);
     }
     fusedev_free_blockdev(fs->ffs_bdev);
-    YSFS_TRACE("fusefs_fuse_unregister_bdev enter");
-    return 0;
+    YSFS_TRACE("fusefs_fuse_unregister_bdev exit");
+    rc = 0;
+l_out:
+    return rc;
 }
 
 static int fusefs_mount(struct fusefs_fuse_fs * fs)
@@ -88,7 +95,10 @@ static int fusefs_fuse_init(struct fusefs_fuse_fs * fs)
     }
     fs->ffs_op = fusefs_fuse_op;
     fusefs_register_bdev(fs);
-    vfs_malloc_fs(fs->ffs_config->ffs_fsname, &fs->ffs_vfs);
+    vfs_config_t vfs_config;
+    vfs_config.vfs_fs_type = 1;
+    vfs_config.vfs_dev = fs->ffs_config->ffs_bdev;
+    vfs_malloc_fs(&vfs_config, &fs->ffs_vfs);
 
     g_fusefs_fuse = fuse;
     rc = 0;
@@ -130,24 +140,26 @@ static int fusefs_fuse_run(int argc, char *argv[], struct fusefs_fuse_fs * fs)
 
     fusefs_mount(fs);
     session = fuse_get_session(fuse);
-    if (fuse_session_mount(session, mount_point) != 0) {
-        rc = -1;
+    rc = fuse_session_mount(session, mount_point);
+    if (rc != 0) {
         YSFS_ERROR("fuse_session_mount failed, errno(%d)", rc);
+        rc = -1;
         goto l_umount;
     }
 
     rc= fuse_daemonize(1);
-    if (fuse_set_signal_handlers(session) != 0) {
-        rc = 1;
+    rc = fuse_set_signal_handlers(session);
+    if (rc != 0) {
         YSFS_ERROR("fuse_session_mount failed, errno(%d)", rc);
+        rc = 1;
         goto l_session_umount;
     }
     
     rc = fuse_session_loop(session);
     //rc = fuse_session_loop_mt(fs->ffs_session, 0);
-    if (rc) {
-        rc = -1;
+    if (rc != 0) {
         YSFS_ERROR("fuse_session_loop failed, errno(%d)", rc);
+        rc = -1;
         goto l_session_umount;
        }
 
@@ -177,7 +189,6 @@ int fusefs_malloc_fs(fusefs_fuse_fs_config_t * config, fusefs_fuse_fs_t** fs)
 
     YSFS_TRACE("malloc_fusefs_fuse_fs enter");
     entry = (fusefs_fuse_fs_t*)malloc(sizeof(fusefs_fuse_fs_t));
-    vfs_malloc_fs(config->ffs_fsname, &vfs);
     entry->ffs_config = config;
     //entry->ysffs_op = &g_fusefs_fuse_op;
     fusefs_register_bdev(entry);
@@ -198,7 +209,6 @@ void fusefs_free_fs(fusefs_fuse_fs_t * fs)
     YSFS_TRACE("free_fusefs_fuse_fs enter");
     if (fs != NULL) {
         fusefs_unregister_bdev(fs);
-        vfs_free_fs(fs->ffs_vfs);
         fs->ffs_config = NULL;
         free(fs);
         g_fusefs = NULL;

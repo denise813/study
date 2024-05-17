@@ -8,9 +8,16 @@ extern "C"
 #endif
 
 
+typedef struct passfs_config
+{
+    char * pfs_bdev;
+}passfs_config_t;
+
+
 typedef struct passfs
 {
-    vfs_syscall_t * vfs_op;
+    passfs_config_t pfs_config;
+    vfs_syscall_t * pfs_op;
 }passfs_t;
 
 

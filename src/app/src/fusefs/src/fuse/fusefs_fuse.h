@@ -41,8 +41,6 @@ typedef struct fusefs_fuse_fs
     fusefs_fuse_blockdev_t *  ffs_bdev;
     struct fuse_operations * ffs_op;
     vfs_t * ffs_vfs;
-    int (*mount)(struct fusefs_fuse_fs*);
-    int (*umount)(struct fusefs_fuse_fs*);
     int (*init)(struct fusefs_fuse_fs*);
     int (*run)(int, char *[], struct fusefs_fuse_fs*);
     int (*exit)(struct fusefs_fuse_fs*);

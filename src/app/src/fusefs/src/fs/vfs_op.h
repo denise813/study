@@ -48,7 +48,7 @@ typedef struct vfs_syscall
     int (*mknod)(void *private, const char *path, mode_t mode, dev_t dev);
     int (*chmod)(void * private, const char *path, mode_t mode);
     int (*chown)(void * private, const char *path, uid_t uid, gid_t gid);
-     int (*mount)(void * private);
+    int (*mount)(void * private);
     int (*unmount)(void * private);
 }vfs_syscall_t;
 
