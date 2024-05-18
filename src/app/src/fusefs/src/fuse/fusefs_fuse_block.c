@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <errno.h>
 #include "fusefs_fuse.h"
 
 
@@ -45,9 +46,15 @@ int fusedev_fuse_write(
 
 int fusedev_malloc_blockdev(fusefs_fuse_blockdev_config_t * config, fusefs_fuse_blockdev_t** bdev)
 {
+    int rc = 0;
     fusefs_fuse_blockdev_t * entry = NULL;
 
+    *bdev = NULL;
     entry = (fusefs_fuse_blockdev_t*)malloc(sizeof(fusefs_fuse_blockdev_t));
+    if (!entry) {
+        rc = -ENOMEM;
+        goto l_out;
+    }
     entry->close = fusedev_fuse_close;
     entry->exit = fusedev_fuse_exit;
     entry->init = fusedev_fuse_init;
@@ -57,6 +64,7 @@ int fusedev_malloc_blockdev(fusefs_fuse_blockdev_config_t * config, fusefs_fuse_
     entry->fbdev_config = config;
 
     *bdev = entry;
+l_out:
     return 0;
 }
 

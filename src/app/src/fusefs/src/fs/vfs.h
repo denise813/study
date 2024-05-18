@@ -16,13 +16,37 @@ typedef struct vfs_config
     char * vfs_dev;
 }vfs_config_t;
 
+typedef struct agent_fs
+{
+    void * afs_private;
+    vfs_syscall_t * afs_op;
+}agent_fs_t;
+
 typedef struct vfs
 {
     vfs_config_t vfs_config;
-    void * vfs_private;
+    agent_fs_t vfs_agentfs;
     vfs_syscall_t * vfs_op;
     vblock_t * vfs_block;
 }vfs_t;
+
+typedef struct vfs_inode
+{
+    void * f_private;
+}vfs_info_t;
+
+
+typedef struct vfs_file
+{
+     void * f_private;
+}vfs_file_t;
+
+typedef struct vfs_dir
+{
+     //struct dirent * d_itor;
+     void * d_private;
+}vfs_dir_t;
+
 
 
 int vfs_malloc_fs(vfs_config_t * config, vfs_t **fs);

@@ -21,12 +21,17 @@ static int fusefs_register_bdev(struct fusefs_fuse_fs * fs)
     cbdev = (fusefs_fuse_blockdev_config_t*)malloc(sizeof(fusefs_fuse_blockdev_config_t));
     cbdev->fb_bdev = strdup(fs->ffs_config->ffs_bdev);
     
-    fusedev_malloc_blockdev(cbdev, &bdev);
+    rc = fusedev_malloc_blockdev(cbdev, &bdev);
+    if (rc < 0) {
+        goto l_out;
+    }
 
+    rc = 0;
     fs->ffs_bdev = bdev;
     //fs->ffs_vfs->vfs_block = fs->ffs_bdev;
+l_out:
     YSFS_TRACE("fusefs_fuse_register_bdev exit");
-    return 0;
+    return rc;
 }
 
 static int fusefs_unregister_bdev(struct fusefs_fuse_fs * fs)
@@ -70,6 +75,7 @@ static int fusefs_unmount(struct fusefs_fuse_fs * fs)
 static void fusefs_get_args(struct fusefs_fuse_fs * fs, struct fuse_args ** args)
 {
     fuse_opt_add_arg(&g_fusefs_fuse_args, "fusefs");
+
     *args = &g_fusefs_fuse_args;
     return;
 }
@@ -91,21 +97,32 @@ static int fusefs_fuse_init(struct fusefs_fuse_fs * fs)
     if (fuse == NULL) {
         rc= -1;
         YSFS_ERROR("fuse_new errno(%d)", rc);
-        goto l_out;
+        goto l_free_args;
     }
     fs->ffs_op = fusefs_fuse_op;
     fusefs_register_bdev(fs);
     vfs_config_t vfs_config;
     vfs_config.vfs_fs_type = 1;
     vfs_config.vfs_dev = fs->ffs_config->ffs_bdev;
-    vfs_malloc_fs(&vfs_config, &fs->ffs_vfs);
+    rc = vfs_malloc_fs(&vfs_config, &fs->ffs_vfs);
+    if (rc < 0) {
+        YSFS_ERROR("fuse_new errno(%d)", rc);
+        goto l_free_fuse;
+    }
 
     g_fusefs_fuse = fuse;
     rc = 0;
-    YSFS_TRACE("fusefs_fuse_init exit");
+    YSFS_TRACE("fusefs_fuse_init ok");
 
 l_out:
-   return 0;
+    YSFS_TRACE("fusefs_fuse_init exit");
+   return rc;
+
+l_free_fuse:
+    fuse_destroy(fuse);
+l_free_args:
+    fuse_opt_free_args(args);
+    goto l_out;
 }
 
 static int fusefs_fuse_exit(struct fusefs_fuse_fs * fs)
@@ -117,10 +134,14 @@ static int fusefs_fuse_exit(struct fusefs_fuse_fs * fs)
     fuse = g_fusefs_fuse;
     args = &g_fusefs_fuse_args;
 
-    vfs_free_fs(fs->ffs_vfs);
+    if (fs->ffs_vfs) {
+        vfs_free_fs(fs->ffs_vfs);
+    }
     fusefs_unregister_bdev(fs);
     fs->ffs_op = NULL;
-    fuse_destroy(fuse);
+    if (fuse) {
+        fuse_destroy(fuse);
+    }
     fuse_opt_free_args(args);
     YSFS_TRACE("fusefs_fuse_exit exit");
 
@@ -191,7 +212,7 @@ int fusefs_malloc_fs(fusefs_fuse_fs_config_t * config, fusefs_fuse_fs_t** fs)
     entry = (fusefs_fuse_fs_t*)malloc(sizeof(fusefs_fuse_fs_t));
     entry->ffs_config = config;
     //entry->ysffs_op = &g_fusefs_fuse_op;
-    fusefs_register_bdev(entry);
+   entry->ffs_bdev = NULL;
     //entry->mount = fusefs_fuse_mount;
     //entry->umount = fusefs_fuse_unmount;
     entry->init = fusefs_fuse_init;
@@ -208,7 +229,6 @@ void fusefs_free_fs(fusefs_fuse_fs_t * fs)
 {
     YSFS_TRACE("free_fusefs_fuse_fs enter");
     if (fs != NULL) {
-        fusefs_unregister_bdev(fs);
         fs->ffs_config = NULL;
         free(fs);
         g_fusefs = NULL;
