@@ -14,24 +14,29 @@ set(THRIDPARTY_SRC_DIR ${CURRENTDIR}/../thridparty)
 set(LIBFUSE_SRC_DIR ${THRIDPARTY_SRC_DIR}/fuse3)
 
 
-set(FUSE_CODES_DIR ${SRC_DIR}/fuse)
-file(GLOB_RECURSE FUSE_SRC_CODES ${FUSE_CODES_DIR}/*.c)
+set(FUSE_CODES_DIR ${SRC_DIR})
+file(GLOB_RECURSE FUSE_SRC_CODES
+	${FUSE_CODES_DIR}/fusefs_config.c
+    ${FUSE_CODES_DIR}/fusefs_fuse_fs.c
+    ${FUSE_CODES_DIR}/fusefs_fuse_fs_op.c
+    ${FUSE_CODES_DIR}/fusefs_storage.c
+    ${FUSE_CODES_DIR}/fusefs_storage_op.c)
 
-set(FS_CODES_DIR ${SRC_DIR}/fs)
-file(GLOB_RECURSE  FS_SRC_CODES ${FS_CODES_DIR}/*.c)
+set(STORAGE_CODES_DIR ${SRC_DIR}/storages)
 
-set(BLOCK_CODES_DIR ${SRC_DIR}/block)
-file(GLOB_RECURSE BLOCK_SRC_CODES ${BLOCK_CODES_DIR}/*.c)
+set(PASSFS_STORAGE_CODES_DIR ${STORAGE_CODES_DIR}/passfs)
+
+file(GLOB_RECURSE  PASSFS_STORAGE_SRC_CODES
+    ${PASSFS_STORAGE_CODES_DIR}/passfs_inter.c)
 
 #include_directories(${COMM_CODES_DIR}/include)
 include_directories(${LIBFUSE_SRC_DIR}/include)
 
 message(STATUS ${LIBFUSE_SRC_DIR})
 
-set (CODE_SRC ${FUSE_SRC_CODES}
-    ${FS_SRC_CODES}
-    ${BLOCK_SRC_CODES}
-    ${SRC_DIR}/ysfs_config.c)
+set (CODE_SRC
+    ${FUSE_SRC_CODES}
+    ${PASSFS_STORAGE_SRC_CODES})
 
 add_executable(${BIN_NAME} ${CURRENTDIR}/fusefs_main.c ${CODE_SRC})
 target_link_libraries(${BIN_NAME} pthread dl)

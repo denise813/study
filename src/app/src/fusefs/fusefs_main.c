@@ -1,54 +1,62 @@
 #include <stdio.h>
-#include "src/ysfs_log.h"
-#include "src/ysfs_config.h"
-#include "src/fuse/fusefs_fuse.h"
+#include "src/fusefs_log.h"
+#include "src/fusefs_config.h"
+#include "src/fusefs_fs.h"
 
-
-int trans_fuse_config(ysfs_config_t * fs_config, fusefs_fuse_fs_config_t * fuse_config)
-{
-    fuse_config->ffs_bdev = fs_config->ysc_dev;
-    fuse_config->ffs_fsname = fs_config->ysc_fs_name;
-    fuse_config->ffs_mountpoint = fs_config->ysc_mount_point;
-
-    return 0;
-}
 
 int main(int argc, char *argv[])
 {
     int rc = 0;
-    ysfs_config_t * fs_config = NULL;
-    fusefs_fuse_fs_config_t fuse_config;
-    fusefs_fuse_fs_t * fs = NULL;
-
-    rc = malloc_ys_config(&fs_config);
-    if (rc < 0) {
+    fusefs_config_t * p_config;
+    fusefs_fs_t * p_fs;
+    
+    rc = fusefs_malloc_config(&p_config);
+     if (rc < 0) {
         goto l_out;
     }
 
-    rc = cmd_parse_configure(argc, argv, fs_config);
+    rc = fusefs_parse_configure(argc, argv, p_config);
     if (rc < 0) {
         goto l_free_config;
     }
 
-    if (fs_config->ysc_has_help) {
+    if (p_config->fusefs_has_help) {
         rc = 0;
-        cmd_help_configure();
+        fusefs_help();
         goto l_free_config;
     }
 
-    trans_fuse_config(fs_config, &fuse_config);
-    fusefs_malloc_fs(&fuse_config, &fs);
-    fs->init(fs);
-    fs->run(argc, argv, fs);
-    fs->exit(fs);
-    fusefs_free_fs(fs);
-    free_ys_config(fs_config);
+    rc = fusefs_malloc_fs(p_config, &p_fs);
+    if (rc < 0) {
+        rc = 0;
+        fusefs_help();
+        goto l_free_config;
+    }
+    
+    rc = p_fs->init(p_fs);
+    if (rc < 0) {
+        rc = 0;
+        fusefs_help();
+        goto l_free_fs;
+    }
+
+    rc= p_fs->run(argc, argv, p_fs);
+    if (rc < 0) {
+        rc = 0;
+        fusefs_help();
+        goto l_free_fs;
+    }
+    p_fs->exit(p_fs);
+    fusefs_free_fs(p_fs);
+    fusefs_free_config(p_config);
     rc = 0;
 
 l_out:
     return rc;
+l_free_fs:
+    fusefs_free_fs(p_fs);
 l_free_config:
-    free_ys_config(fs_config);
-    fs_config = NULL;
+    fusefs_free_config(p_config);
+    p_config = NULL;
     goto l_out;
 }
