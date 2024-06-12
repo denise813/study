@@ -2,7 +2,7 @@
 #define FUSEFS_FS_H
 
 #include "fusefs_fuse_def.h"
-#include "fusefs_config.h"
+#include "../fusefs_config.h"
 #include "fusefs_storage.h"
 
 #ifdef __cplusplus

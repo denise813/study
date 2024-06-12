@@ -15,14 +15,15 @@ set(LIBFUSE_SRC_DIR ${THRIDPARTY_SRC_DIR}/fuse3)
 set(LIBGUESTFS_SRC_DIR ${THRIDPARTY_SRC_DIR}/libguestfs)
 
 set(FUSE_CODES_DIR ${SRC_DIR})
+set(FUSE_MOUNT_CODES_DIR ${SRC_DIR}/mount)
+set(STORAGE_CODES_DIR ${FUSE_MOUNT_CODES_DIR}/storages)
+
 file(GLOB_RECURSE FUSE_SRC_CODES
 	${FUSE_CODES_DIR}/fusefs_config.c
-    ${FUSE_CODES_DIR}/fusefs_fuse_fs.c
-    ${FUSE_CODES_DIR}/fusefs_fuse_fs_op.c
-    ${FUSE_CODES_DIR}/fusefs_storage.c
-    ${FUSE_CODES_DIR}/fusefs_storage_op.c)
-
-set(STORAGE_CODES_DIR ${SRC_DIR}/storages)
+    ${FUSE_MOUNT_CODES_DIR}/fusefs_fuse_fs.c
+    ${FUSE_MOUNT_CODES_DIR}/fusefs_fuse_fs_op.c
+    ${FUSE_MOUNT_CODES_DIR}/fusefs_storage.c
+    ${FUSE_MOUNT_CODES_DIR}/fusefs_storage_op.c)
 
 set(PASSFS_STORAGE_CODES_DIR ${STORAGE_CODES_DIR}/passfs)
 file(GLOB_RECURSE  PASSFS_STORAGE_SRC_CODES

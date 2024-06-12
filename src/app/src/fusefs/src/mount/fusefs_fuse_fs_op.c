@@ -7,7 +7,7 @@
 #include <sys/types.h>
 #include <dirent.h>
 
-#include "fusefs_log.h"
+#include "../fusefs_log.h"
 #include "fusefs_fs.h"
 #include "fusefs_storage.h"
 

@@ -1,11 +1,5 @@
-// Directory manipulation functions.
-//
-// Feel free to use as inspiration.
-
-// based on cs3650 starter code
-
-#ifndef DIRECTORY_H
-#define DIRECTORY_H
+#ifndef SPFS_DIR_H
+#define SPFS_DIR_H
 
 #define DIR_NAME_LENGTH 48
 

@@ -7,9 +7,10 @@
 #include <sys/types.h>
 #include <dirent.h>
 
+#include "../../../fusefs_log.h"
+
 #include "../../fusefs_storage_op.h"
 #include "../../fusefs_storage.h"
-#include "../../fusefs_log.h"
 #include "libguestfs_inter.h"
 #include <guestfs.h>
 

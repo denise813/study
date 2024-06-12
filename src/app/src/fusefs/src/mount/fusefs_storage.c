@@ -2,11 +2,12 @@
 #include <string.h>
 #include <errno.h>
 
+#include "../fusefs_log.h"
+#include "../fusefs_config.h"
+
 #include "fusefs_storage_op.h"
 #include "fusefs_storage.h"
-#include "fusefs_log.h"
-#include "fusefs_config.h"
-#include "storages/passfs/passfs_inter.h"
+#include "src/mount/storages/passfs/passfs_inter.h"
 #ifdef STORAGE_ENABLE_BACKEND_GUESTFS
 #include "storages/libguestfs/libguestfs_inter.h"
 #endif

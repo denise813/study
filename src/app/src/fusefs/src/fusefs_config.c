@@ -15,7 +15,8 @@ extern int optind, opterr, optopt;
 
 enum
 {
-    FUSEFS_OPT_VALUE_DEV = 0,
+    FUSEFS_OPT_VALUE_OP = 0,
+    FUSEFS_OPT_VALUE_DEV,
     FUSEFS_OPT_VALUE_MOUNT_POINT,
     FUSEFS_OPT_VALUE_FS_NAME,
     FUSEFS_OPT_VALUE_HELP,
@@ -34,6 +35,7 @@ typedef struct help_option
 
 
 const struct option g_options[] = {
+                {"op", required_argument, NULL, FUSEFS_OPT_VALUE_OP},
                 {"dev", required_argument, NULL, FUSEFS_OPT_VALUE_DEV},
                 {"mountpoint", required_argument, NULL, FUSEFS_OPT_VALUE_MOUNT_POINT},
                 {"fs", required_argument, NULL, FUSEFS_OPT_VALUE_FS_NAME},
@@ -43,6 +45,7 @@ const struct option g_options[] = {
 
 
 help_option_t g_option_helps[] = {
+                {FUSEFS_OPT_VALUE_OP, "op", "--op create or mount", TRUE, FALSE},
                 {FUSEFS_OPT_VALUE_DEV, "dev", "--dev /dev/sdb", TRUE, FALSE},
                 {FUSEFS_OPT_VALUE_MOUNT_POINT, "mountpoint", "--mountpoint /mnt/tst", TRUE, FALSE},
                 {FUSEFS_OPT_VALUE_FS_NAME, "fs", "--fs passfs or guestfs", FALSE, FALSE},
@@ -69,6 +72,25 @@ l_out:
     return rc;
 }
 
+static int fusefs_vaild_op(char * op)
+{
+    int rc = 0;
+    if (strcmp(op, FUSEFS_SUBCMD_MOUNT) == 0) {
+        rc = 0;
+        goto l_out;
+    }
+
+    if (strcmp(op, FUSEFS_SUBCMD_CREATE) == 0) {
+        rc = 0;
+        goto l_out;
+    }
+
+    rc = -1;
+l_out:
+    return rc;
+}
+
+
 int fusefs_parse_configure(int argc, char *argv[], fusefs_config_t * config)
 {
     int rc = 0;
@@ -93,6 +115,19 @@ int fusefs_parse_configure(int argc, char *argv[], fusefs_config_t * config)
         }
 
         switch(opt_value) {
+            case FUSEFS_OPT_VALUE_OP:
+                context = optarg;
+                g_option_helps[FUSEFS_OPT_VALUE_OP].hasflag = TRUE;
+                config->fusefs_subcmd = strdup(context);
+                rc = fusefs_vaild_op(config->fusefs_subcmd);
+                if (rc < 0) {
+                    FUSEFS_ERROR("has invalid op %s. must be create or mount", context);
+                    return -1;
+                }
+                FUSEFS_INFO("configure parse op=%s, mandatory=%d.",
+                                context,
+                                g_option_helps[FUSEFS_OPT_VALUE_OP].requested);
+                break;
             case FUSEFS_OPT_VALUE_DEV:
                 context = optarg;
                 g_option_helps[FUSEFS_OPT_VALUE_DEV].hasflag = TRUE;

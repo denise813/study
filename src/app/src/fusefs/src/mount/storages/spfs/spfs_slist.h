@@ -1,11 +1,5 @@
-// based on cs3650 starter code
-
-// A simple linked list of strings.
-//
-// This might be useful for directory listings and for manipulating paths.
-
-#ifndef SLIST_H
-#define SLIST_H
+#ifndef SPFS_SLIST_H
+#define SPFS_SLIST_H
 
 typedef struct slist {
   char *data;

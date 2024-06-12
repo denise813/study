@@ -1,7 +1,5 @@
-// based on cs3650 starter code
-
-#ifndef BITMAP_H
-#define BITMAP_H
+#ifndef SPFS_BITMAP_H
+#define SPFS_BITMAP_H
 
 // Get the given bit from the bitmap.
 int bitmap_get(void *bm, int i);

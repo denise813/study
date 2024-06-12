@@ -1,8 +1,9 @@
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 #include "fusefs_fuse_def.h"
 #include "fusefs_fs.h"
-#include "fusefs_log.h"
+#include "../fusefs_log.h"
 
 
 static fusefs_fs_t * g_fusefs = NULL;
@@ -168,6 +169,7 @@ int fusefs_malloc_fs(fusefs_config_t * config, fusefs_fs_t** fs)
     FUSEFS_TRACE("malloc_fusefs_fs enter");
     entry = (fusefs_fs_t*)malloc(sizeof(fusefs_fs_t));
     if (!entry) {
+        rc = -ENOMEM;
         goto l_out;
     }
     for (index = 0; index < config->fusefs_bdevs_num; index++) {
@@ -192,7 +194,7 @@ int fusefs_malloc_fs(fusefs_config_t * config, fusefs_fs_t** fs)
     FUSEFS_TRACE("fusefs_malloc_fs exit");
 
 l_out:
-    return 0;
+    return rc;
 }
 
 void fusefs_free_fs(fusefs_fs_t * fs)

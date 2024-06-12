@@ -2,7 +2,7 @@
 #define FUSEFS_STORAGE_H
 
 
-#include "fusefs_config.h"
+#include "../fusefs_config.h"
 #include "fusefs_storage_op.h"
 
 

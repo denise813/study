@@ -2,10 +2,8 @@
 //
 // Feel free to use as inspiration.
 
-// based on cs3650 starter code
-
-#ifndef NUFS_STORAGE_H
-#define NUFS_STORAGE_H
+#ifndef SPFS_STORAGE_H
+#define SPFS_STORAGE_H
 
 #include <sys/stat.h>
 #include <sys/types.h>

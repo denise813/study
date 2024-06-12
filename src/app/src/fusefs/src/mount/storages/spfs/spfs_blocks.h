@@ -1,7 +1,5 @@
-// based on cs3650 starter code
-
-#ifndef BLOCKS_H
-#define BLOCKS_H
+#ifndef SPFS_BLOCKS_H
+#define SPFS_BLOCKS_H
 
 #include <stdio.h>
 
