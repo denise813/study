@@ -11,6 +11,10 @@ extern "C"
 {
 #endif
 
+#define FUSEFS_STORAGE_BACKEND_TYPE_PASSFS "PASSFS"
+#define FUSEFS_STORAGE_BACKEND_TYPE_GUESTFS "GUESTFS"
+
+
 
 typedef struct fusefs_storage_config
 {
@@ -45,8 +49,9 @@ typedef struct fusefs_storage_file
 
 typedef struct fusefs_storage_dir
 {
-     //struct dirent * d_itor;
      void * d_private;
+     //struct dirent *d_itor;
+     //int d_index;
 }fusefs_storage_dir_t;
 
 

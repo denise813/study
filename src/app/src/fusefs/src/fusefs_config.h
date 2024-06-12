@@ -7,6 +7,9 @@ extern "C"
 {
 #endif
 
+#define FUSEFS_STORAGE_TYPE_PASSFS "passfs"
+#define FUSEFS_STORAGE_TYPE_GUESTFS "guestfs"
+
 
 typedef struct fusefs_config
 {

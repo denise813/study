@@ -23,7 +23,7 @@ static int passfs_trans_path(void * private, const char * path, char * real_path
     passfs_t * fs = (passfs_t*)private;
     passfs_config_t * config = &fs->pfs_config;
 
-    snprintf(real_path, PASS_PATH_MAX, "%s/%s", config->pfs_bdev, path);
+    snprintf(real_path, PASS_PATH_MAX, "%s/%s", config->pfs_root, path);
     return 0;
 }
 
@@ -590,20 +590,20 @@ static int passfs_chmod(void * private,const char *path, mode_t mode)
     char * real_path = passfs_path;
 
     passfs_trans_path(private, path, real_path);
-    FUSEFS_TRACE("passfs_truncate enter %s-%s", path, real_path);
+    FUSEFS_TRACE("passfs_chmod enter %s-%s", path, real_path);
 
     rc = chmod(real_path, mode);
     if (rc < 0) {
         rc = -errno;
-        FUSEFS_ERROR("passfs_truncate failed %d %s", rc, path);
+        FUSEFS_ERROR("chmod failed %d %s", rc, path);
         goto l_out;
     }
 
     rc = 0;
-    FUSEFS_TRACE("passfs_truncate ok %s-%s", path, real_path);
+    FUSEFS_TRACE("passfs_chmod ok %s-%s", path, real_path);
 
 l_out:
-    FUSEFS_TRACE("passfs_truncate exit %s-%s", path, real_path);
+    FUSEFS_TRACE("passfs_chmod exit %s-%s", path, real_path);
     return rc;
 }
 
@@ -679,6 +679,7 @@ int passfs_malloc_fs(void * fuse_storage)
     entry->pfs_op = &g_passfs_op;
     dev = (char*)storage->s_config.sc_devs[0];
     entry->pfs_config.pfs_bdev = strdup(dev);
+    entry->pfs_config.pfs_root = entry->pfs_config.pfs_bdev;
     
     storage->s_agent.as_stroage = entry;
     storage->s_agent.as_stroage_op = &g_passfs_op;
@@ -692,8 +693,15 @@ l_out:
 void passfs_free_fs(void *fuse_storage)
 {
     fusefs_storage_t * storage = (fusefs_storage_t*)(fuse_storage);
+    passfs_t * entry = NULL;
+    
     FUSEFS_TRACE("free_passfs enter");
+    entry->pfs_config.pfs_root = NULL;
+ 
+    free(entry->pfs_config.pfs_bdev);
     free(storage->s_agent.as_stroage);
+    storage->s_agent.as_stroage = NULL;
+    storage->s_agent.as_stroage_op = NULL;
      FUSEFS_TRACE("free_passfs exit");
 }
 

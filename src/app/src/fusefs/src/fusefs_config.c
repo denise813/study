@@ -45,11 +45,29 @@ const struct option g_options[] = {
 help_option_t g_option_helps[] = {
                 {FUSEFS_OPT_VALUE_DEV, "dev", "--dev /dev/sdb", TRUE, FALSE},
                 {FUSEFS_OPT_VALUE_MOUNT_POINT, "mountpoint", "--mountpoint /mnt/tst", TRUE, FALSE},
-                {FUSEFS_OPT_VALUE_FS_NAME, "fs", "--fs ext2", FALSE, FALSE},
+                {FUSEFS_OPT_VALUE_FS_NAME, "fs", "--fs passfs or guestfs", FALSE, FALSE},
                 {FUSEFS_OPT_VALUE_HELP, "help", "--help.", FALSE, FALSE},
                 {0, "", "", 0, 0}
                 };
 
+
+static int fusefs_vaild_fs(char * fsname)
+{
+    int rc = 0;
+    if (strcmp(fsname, FUSEFS_STORAGE_TYPE_PASSFS) == 0) {
+        rc = 0;
+        goto l_out;
+    }
+#ifdef STORAGE_ENABLE_BACKEND_GUESTFS
+    if (strcmp(fsname, FUSEFS_STORAGE_TYPE_GUESTFS) == 0) {
+        rc = 0;
+        goto l_out;
+    }
+#endif
+    rc = -1;
+l_out:
+    return rc;
+}
 
 int fusefs_parse_configure(int argc, char *argv[], fusefs_config_t * config)
 {
@@ -96,6 +114,11 @@ int fusefs_parse_configure(int argc, char *argv[], fusefs_config_t * config)
             case FUSEFS_OPT_VALUE_FS_NAME:
                 context =  optarg;
                 config->fusefs_fsname = strdup(context);
+                rc = fusefs_vaild_fs(config->fusefs_fsname);
+                if (rc < 0) {
+                    FUSEFS_ERROR("has invalid fsname %s. must be passfs or guestfs", context);
+                    return -1;
+                }
                 g_option_helps[FUSEFS_OPT_VALUE_FS_NAME].hasflag = TRUE;
                 FUSEFS_INFO("configure parse fs=%s, mandatory=%d.",
                                 context,
@@ -125,6 +148,7 @@ int fusefs_parse_configure(int argc, char *argv[], fusefs_config_t * config)
     config->fusefs_bdevs[config->fusefs_bdevs_num] = NULL;
 
     rc = 0;
+l_out:
     FUSEFS_TRACE("parse exit.");
     return rc;
 }

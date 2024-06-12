@@ -42,7 +42,7 @@ do {                                                                            
 #define FUSEFS_DEBUG(format, args...)                                 \
 do {                                                                                \
     snprintf(NULL, 0, format, ##args);                                           \
-    if (ENABLE_LOG == true) {                                                       \
+    if (ENABLE_LOG == TRUE) {                                                       \
         fusefs_log(FUSE_LOG_DEBUG, format, ##args);                              \
     }                                                                               \
 } while (0)
@@ -58,7 +58,7 @@ do {                                                                            
 #define FUSEFS_WARN(format, args...)                                  \
 do {                                                                                \
     snprintf(NULL, 0, format, ##args);                                           \
-    if (ENABLE_LOG == true) {                                                       \
+    if (ENABLE_LOG == TRUE) {                                                       \
         fusefs_log(FUSE_LOG_WARNING, format, ##args);                               \
     }                                                                               \
 } while (0)

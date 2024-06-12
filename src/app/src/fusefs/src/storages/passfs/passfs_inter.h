@@ -11,6 +11,7 @@ extern "C"
 typedef struct passfs_config
 {
     char * pfs_bdev;
+    char * pfs_root;
 }passfs_config_t;
 
 
