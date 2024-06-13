@@ -13,6 +13,14 @@
 extern int optind, opterr, optopt;
 
 
+#define FUSEFS_STORAGE_TYPE_PASSFS_STR "passfs"
+#define FUSEFS_STORAGE_TYPE_GUESTFS_STR "guestfs"
+#define FUSEFS_STORAGE_TYPE_SPFS_STR "spfs"
+
+#define FUSEFS_SUBCMD_MOUNT_STR "mount"
+#define FUSEFS_SUBCMD_CREATE_STR "create"
+
+
 enum
 {
     FUSEFS_OPT_VALUE_OP = 0,
@@ -54,42 +62,47 @@ help_option_t g_option_helps[] = {
                 };
 
 
-static int fusefs_vaild_fs(char * fsname)
+static int fusefs_vaild_fs(char * fsname, int * fs_type)
 {
     int rc = 0;
-    if (strcmp(fsname, FUSEFS_STORAGE_TYPE_PASSFS) == 0) {
+    if (strcmp(fsname, FUSEFS_STORAGE_TYPE_PASSFS_STR) == 0) {
+        *fs_type = FUSEFS_STORAGE_BACKEND_PASSFS;
         rc = 0;
         goto l_out;
     }
 #ifdef STORAGE_ENABLE_BACKEND_GUESTFS
-    if (strcmp(fsname, FUSEFS_STORAGE_TYPE_GUESTFS) == 0) {
+    if (strcmp(fsname, FUSEFS_STORAGE_TYPE_GUESTFS_STR) == 0) {
+        *fs_type = FUSEFS_STORAGE_BACKEND_GUESTFS;
         rc = 0;
         goto l_out;
     }
 #endif
+    *fs_type = FUSEFS_STORAGE_BACKEND_UNKOWN;
     rc = -1;
 l_out:
     return rc;
 }
 
-static int fusefs_vaild_op(char * op)
+static int fusefs_vaild_op(char * op, int * op_type)
 {
     int rc = 0;
-    if (strcmp(op, FUSEFS_SUBCMD_MOUNT) == 0) {
+    if (strcmp(op, FUSEFS_SUBCMD_MOUNT_STR) == 0) {
+        *op_type = FUSEFS_OP_TYPE_MOUNT;
         rc = 0;
         goto l_out;
     }
 
-    if (strcmp(op, FUSEFS_SUBCMD_CREATE) == 0) {
+    if (strcmp(op, FUSEFS_SUBCMD_CREATE_STR) == 0) {
+        *op_type = FUSEFS_OP_TYPE_CREATE;
         rc = 0;
         goto l_out;
     }
 
+    *op_type = FUSEFS_OP_TYPE_UNKOWN;
     rc = -1;
 l_out:
     return rc;
 }
-
 
 int fusefs_parse_configure(int argc, char *argv[], fusefs_config_t * config)
 {
@@ -118,14 +131,15 @@ int fusefs_parse_configure(int argc, char *argv[], fusefs_config_t * config)
             case FUSEFS_OPT_VALUE_OP:
                 context = optarg;
                 g_option_helps[FUSEFS_OPT_VALUE_OP].hasflag = TRUE;
-                config->fusefs_subcmd = strdup(context);
-                rc = fusefs_vaild_op(config->fusefs_subcmd);
+                rc = fusefs_vaild_op(context, &config->fusefs_op_type);
                 if (rc < 0) {
-                    FUSEFS_ERROR("has invalid op %s. must be create or mount", context);
+                    FUSEFS_ERROR("has invalid op %s %d. must be create or mount",
+                                    config->fusefs_op_type, context);
                     return -1;
                 }
-                FUSEFS_INFO("configure parse op=%s, mandatory=%d.",
+                FUSEFS_INFO("configure parse op=%s, %d mandatory=%d.",
                                 context,
+                                config->fusefs_op_type,
                                 g_option_helps[FUSEFS_OPT_VALUE_OP].requested);
                 break;
             case FUSEFS_OPT_VALUE_DEV:
@@ -148,15 +162,16 @@ int fusefs_parse_configure(int argc, char *argv[], fusefs_config_t * config)
                 break;
             case FUSEFS_OPT_VALUE_FS_NAME:
                 context =  optarg;
-                config->fusefs_fsname = strdup(context);
-                rc = fusefs_vaild_fs(config->fusefs_fsname);
+                rc = fusefs_vaild_fs(context, &config->fusefs_fs_type);
                 if (rc < 0) {
-                    FUSEFS_ERROR("has invalid fsname %s. must be passfs or guestfs", context);
+                    FUSEFS_ERROR("has invalid fsname %s %d. must be passfs or guestfs",
+                                    config->fusefs_fs_type, context);
                     return -1;
                 }
                 g_option_helps[FUSEFS_OPT_VALUE_FS_NAME].hasflag = TRUE;
-                FUSEFS_INFO("configure parse fs=%s, mandatory=%d.",
+                FUSEFS_INFO("configure parse fs=%s %d, mandatory=%d.",
                                 context,
+                                config->fusefs_fs_type,
                                 g_option_helps[FUSEFS_OPT_VALUE_FS_NAME].requested);
                 break;
             case FUSEFS_OPT_VALUE_HELP:
@@ -220,7 +235,7 @@ int fusefs_malloc_config(fusefs_config_t ** config)
     for (index=0; index < 100; index++) {
         entry->fusefs_bdevs[index] = NULL;
     }
-    entry->fusefs_fsname = NULL;
+    entry->fusefs_fs_type = FUSEFS_STORAGE_BACKEND_UNKOWN;
     entry->fusefs_mountpoint = NULL;
     *config = entry;
 
@@ -241,10 +256,6 @@ void fusefs_free_config(fusefs_config_t * config)
         config->fusefs_bdevs[index] = NULL;
     }
 
-    if (config->fusefs_fsname) {
-        free(config->fusefs_fsname);
-        config->fusefs_fsname = NULL;
-    }
     if (config->fusefs_mountpoint) {
         free(config->fusefs_mountpoint);
         config->fusefs_mountpoint = NULL;

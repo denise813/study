@@ -9,7 +9,7 @@
 #include "fusefs_storage.h"
 #include "src/mount/storages/passfs/passfs_inter.h"
 #ifdef STORAGE_ENABLE_BACKEND_GUESTFS
-#include "storages/libguestfs/libguestfs_inter.h"
+#include "src/mount/storages/libguestfs/libguestfs_inter.h"
 #endif
 
 static int fuse_storage_init(void * private)
@@ -642,8 +642,6 @@ int fusefs_malloc_storage(fusefs_config_t * config, fusefs_storage_t ** storage)
 {
     int rc = 0;
     fusefs_storage_t * entry = NULL;
-    char * itor_dev = NULL;
-    char * dest_dev = NULL;
     int index = 0;
 
     FUSEFS_TRACE("fusefs_malloc_storage enter");
@@ -654,20 +652,16 @@ int fusefs_malloc_storage(fusefs_config_t * config, fusefs_storage_t ** storage)
     }
 
     for (index = 0; index < config->fusefs_bdevs_num; index++) {
-        itor_dev = (char*)config->fusefs_bdevs[index];
-        dest_dev = (char*)entry->s_config.sc_devs[index];
-        dest_dev = strdup(itor_dev);
+        entry->s_config.sc_devs[index] = strdup(config->fusefs_bdevs[index]);
     }
     entry->s_config.sc_devs_num = config->fusefs_bdevs_num;
     entry->s_config.sc_devs[entry->s_config.sc_devs_num] = NULL;
+    entry->s_config.sc_type = config->fusefs_fs_type;
 
-
-    if (config->fusefs_fsname == FUSEFS_STORAGE_BACKEND_TYPE_PASSFS) {
-        entry->s_config.sc_type = 1;
+    if (entry->s_config.sc_type == FUSEFS_STORAGE_BACKEND_PASSFS) {
         rc = passfs_malloc_fs(entry);
 #ifdef STORAGE_ENABLE_BACKEND_GUESTFS
-    } else if (config->fusefs_fsname == FUSEFS_STORAGE_BACKEND_TYPE_GUESTFS){
-         entry->s_config.sc_type = 2;
+    } else if (entry->s_config.sc_type == FUSEFS_STORAGE_BACKEND_GUESTFS) {
          rc = libguestfs_malloc_fs(entry);
 #endif
     } else {

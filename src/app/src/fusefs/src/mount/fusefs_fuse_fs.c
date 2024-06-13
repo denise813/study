@@ -178,7 +178,7 @@ int fusefs_malloc_fs(fusefs_config_t * config, fusefs_fs_t** fs)
     entry->fusefs_fs_config.fusefs_bdevs_num = config->fusefs_bdevs_num;
     entry->fusefs_fs_config.fusefs_bdevs[entry->fusefs_fs_config.fusefs_bdevs_num] = NULL;
     entry->fusefs_fs_config.fusefs_mountpoint = strdup(config->fusefs_mountpoint);
-    entry->fusefs_fs_config.fusefs_fsname = strdup(config->fusefs_fsname);
+    entry->fusefs_fs_config.fusefs_fs_type = config->fusefs_fs_type;
 
     entry->init = fusefs_fs_init;
     entry->exit = fusefs_fs_exit;

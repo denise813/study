@@ -11,16 +11,11 @@ extern "C"
 {
 #endif
 
-#define FUSEFS_STORAGE_BACKEND_TYPE_PASSFS "PASSFS"
-#define FUSEFS_STORAGE_BACKEND_TYPE_GUESTFS "GUESTFS"
-
-
 
 typedef struct fusefs_storage_config
 {
-    char * sc_typename;
     int sc_type;
-    char ** sc_devs[100];
+    char * sc_devs[100];
     int sc_devs_num;
 }fusefs_storage_config_t;
 

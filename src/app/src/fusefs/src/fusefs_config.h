@@ -11,16 +11,26 @@ extern "C"
 #define FUSEFS_STORAGE_TYPE_PASSFS "passfs"
 #define FUSEFS_STORAGE_TYPE_GUESTFS "guestfs"
 #define FUSEFS_STORAGE_TYPE_SPFS "spfs"
+enum{
+    FUSEFS_STORAGE_BACKEND_PASSFS,
+    FUSEFS_STORAGE_BACKEND_GUESTFS,
+    FUSEFS_STORAGE_BACKEND_SPFS,
+    FUSEFS_STORAGE_BACKEND_UNKOWN,
+};
 
-#define FUSEFS_SUBCMD_MOUNT "mount"
-#define FUSEFS_SUBCMD_CREATE "create"
+enum{
+    FUSEFS_OP_TYPE_MOUNT,
+    FUSEFS_OP_TYPE_CREATE,
+    FUSEFS_OP_TYPE_UNKOWN,
+};
+
 
 typedef struct fusefs_config
 {
     char * fusefs_bdevs[100];
     char * fusefs_mountpoint;
-    char * fusefs_subcmd;
-    char * fusefs_fsname;
+    int fusefs_op_type;
+    int fusefs_fs_type;
     int fusefs_bdevs_num;
     int  fusefs_has_help;
 }fusefs_config_t;

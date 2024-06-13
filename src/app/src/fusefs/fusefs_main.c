@@ -63,9 +63,9 @@ int main(int argc, char *argv[])
         goto l_free_config;
     }
 
-    if (strcmp(p_config->fusefs_subcmd, FUSEFS_SUBCMD_MOUNT) == 0) {
+    if (p_config->fusefs_op_type == FUSEFS_OP_TYPE_MOUNT) {
         rc = do_mount(argc, argv, p_config);
-    } else if (strcmp(p_config->fusefs_subcmd == FUSEFS_SUBCMD_CREATE) == 0) {
+    } else if (p_config->fusefs_op_type == FUSEFS_OP_TYPE_CREATE) {
         rc = do_create(p_config);
     }
     if (rc < 0) {
