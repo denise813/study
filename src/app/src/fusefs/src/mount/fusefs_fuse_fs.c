@@ -199,8 +199,16 @@ l_out:
 
 void fusefs_free_fs(fusefs_fs_t * fs)
 {
+    int index = 0;
+
     FUSEFS_TRACE("fusefs_free_fs enter");
     if (fs != NULL) {
+        for (index = 0; index < fs->fusefs_fs_config.fusefs_bdevs_num; index++) {
+            free(fs->fusefs_fs_config.fusefs_bdevs[index]);
+            fs->fusefs_fs_config.fusefs_bdevs[index] = NULL;
+            free(fs->fusefs_fs_config.fusefs_mountpoint);
+            fs->fusefs_fs_config.fusefs_mountpoint = NULL;
+    }
         free(fs);
         g_fusefs = NULL;
     }

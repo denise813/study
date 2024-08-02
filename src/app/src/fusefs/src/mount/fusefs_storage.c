@@ -12,14 +12,43 @@
 #include "src/mount/storages/libguestfs/libguestfs_inter.h"
 #endif
 
+
 static int fuse_storage_init(void * private)
 {
-    return 0;
+    int rc = 0;
+    fusefs_storage_t * fuse_storage = NULL;
+    
+    FUSEFS_TRACE("fuse_storage_init enter ");
+    fuse_storage = (fusefs_storage_t*)(private);
+    rc = fuse_storage->s_agent.as_stroage_op->init(fuse_storage->s_agent.as_stroage);
+    if (rc < 0) {
+        FUSEFS_ERROR("fuse_storage_init failed %d", rc);
+        goto l_out;
+    }
+    rc =0;
+
+l_out:
+    FUSEFS_TRACE("fuse_storage_init exit ");
+    return rc;
 }
 
 static int fuse_storage_exit(void * private)
 {
-    return 0;
+    int rc = 0;
+    fusefs_storage_t * fuse_storage = NULL;
+
+    FUSEFS_TRACE("fuse_storage_exit enter ");
+    fuse_storage = (fusefs_storage_t*)(private);
+    rc = fuse_storage->s_agent.as_stroage_op->exit(fuse_storage->s_agent.as_stroage);
+    if (rc < 0) {
+        FUSEFS_ERROR("fuse_storage_exit failed %d", rc);
+        goto l_out;
+    }
+    rc =0;
+
+l_out:
+    FUSEFS_TRACE("fuse_storage_exit exit ");
+    return rc;
 }
 
 static int fuse_storage_mount(void * private)
@@ -218,7 +247,7 @@ static int fuse_storage_closedir(void * private, void *dp)
     fusefs_storage_t * fuse_storage = NULL;
     fusefs_storage_dir_t * fuse_storage_dir = NULL;
 
-    FUSEFS_TRACE("passfs_closedir enter %p", dp);
+    FUSEFS_TRACE("fuse_storage_closedir enter %p", dp);
 
     fuse_storage = (fusefs_storage_t*)(private);
     fuse_storage_dir = (fusefs_storage_dir_t*)(dp);
@@ -229,40 +258,34 @@ static int fuse_storage_closedir(void * private, void *dp)
         goto l_out;
     }
 
+    free(fuse_storage_dir);
     rc = 0;
-    FUSEFS_TRACE("passfs_closedir ok %p", dp);
+    FUSEFS_TRACE("fuse_storage_closedir ok %p", dp);
 
 l_out:
-    FUSEFS_TRACE("passfs_closedir exit %p", dp);
+    FUSEFS_TRACE("fuse_storage_closedir exit %p", dp);
     return rc;
 }
 
-static int fuse_storage_readdir(void * private, void *dp, struct dirent ** d_itor)
+static struct dirent * fuse_storage_readdir(void * private, void *dp)
 {
     int rc = 0;
     fusefs_storage_t * fuse_storage = NULL;
     fusefs_storage_dir_t * fuse_storage_dir = NULL;
-    struct dirent * fuse_storage_d_itor = NULL;
+    struct dirent * out = NULL;
 
     FUSEFS_TRACE("fuse_storage_readdir enter %p", dp);
 
     fuse_storage = (fusefs_storage_t*)(private);
     fuse_storage_dir = (fusefs_storage_dir_t*)(dp);
-    rc = fuse_storage->s_agent.as_stroage_op->readdir(fuse_storage->s_agent.as_stroage,
-                    fuse_storage_dir->d_private,
-                    (struct dirent **)(&fuse_storage_d_itor));
-    if (rc < 0) {
-        FUSEFS_ERROR("readdir failed %d", rc);
-        goto l_out;
-    }
+    out = fuse_storage->s_agent.as_stroage_op->readdir(fuse_storage->s_agent.as_stroage,
+                    fuse_storage_dir->d_private);
 
-    *d_itor = fuse_storage_d_itor;
-    rc = 0;
     FUSEFS_TRACE("fuse_storage_readdir ok %p", dp);
 
 l_out:
     FUSEFS_TRACE("fuse_storage_readdir exit %p", dp);
-    return rc;
+    return out;
 }
 
 static int fuse_storage_rename(void * private, const char *from, const char *to)

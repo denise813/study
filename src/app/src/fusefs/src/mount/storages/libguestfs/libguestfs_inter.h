@@ -13,17 +13,29 @@ extern "C"
 
 typedef struct libguestfs_config
 {
-    char ** gfs_bdevs[100];
+    char * gfs_bdevs[100];
     char * gfs_root;
     int gfs_bdevs_num;
 }libguestfs_config_t;
 
+typedef struct libguestfs_dev
+{
+     char * d_dev;
+     char * d_mountpoint;
+     int d_need_mk_mountpoint;
+     int d_mkmounted;
+     int d_ismounted;
+}libguestfs_dev_t;
 
 typedef struct libguestfs_mount_info
 {
-    char * m_init_dev;
-    char ** m_part_dev[100];
-    int m_partnum;
+    libguestfs_dev_t m_init_dev;
+    libguestfs_dev_t m_os_dev;
+    libguestfs_dev_t m_mp_dev[100];
+    libguestfs_dev_t m_fs_dev[100];
+    int m_max_num;
+    int m_fs_num;
+    int m_mp_num;
 }libguestfs_mount_info_t;
 
 

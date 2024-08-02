@@ -58,7 +58,6 @@ int main(int argc, char *argv[])
     }
 
     if (p_config->fusefs_has_help) {
-        rc = 0;
         fusefs_help();
         goto l_free_config;
     }

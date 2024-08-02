@@ -248,7 +248,7 @@ static int fusefs_fuse_readdir(
         goto l_out;
     }
 
-    while (storage->s_op->readdir(storage, (void*)storage_dir, (struct dirent **)(&de)) == 0) {
+    while (de = storage->s_op->readdir(storage, (void*)storage_dir)) {
         if (strcmp(de->d_name, ".") == 0) {
             continue;
         }

@@ -111,6 +111,7 @@ int fusefs_parse_configure(int argc, char *argv[], fusefs_config_t * config)
     char * cmd = argv[0];
     char * context = NULL;
     int option_index = 0;
+    int i = 0;
 
     if (argc < 1) {
         rc = -EINVAL;
@@ -186,7 +187,7 @@ int fusefs_parse_configure(int argc, char *argv[], fusefs_config_t * config)
     }
 
     int opt_num = (sizeof(g_option_helps) / sizeof(help_option_t) - 1);
-    for (int i = 0; i < opt_num; i++) {
+    for (i = 0; i < opt_num; i++) {
         if (g_option_helps[i].requested == TRUE) {
             if (g_option_helps[i].hasflag == FALSE) {
                 printf("miss args %s\n", g_option_helps[i].name);

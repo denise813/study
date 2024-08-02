@@ -30,7 +30,7 @@ typedef struct storage_op
     int (*mkdir)(void * private, const char *path, mode_t mode);
     int (*opendir)(void * private, const char *path, void **dp);
     int (*closedir)(void * private, void *dp);
-    int (*readdir)(void * private, void *dp, struct dirent **de);
+    struct dirent * (*readdir)(void * private, void *dp);
     int (*rename)(void * private, const char *from, const char *to);
     int (*unlink)(void * private, const char *path);
     int (*open)(void * private, const char *path, int flags, void **file);

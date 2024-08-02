@@ -21,37 +21,436 @@
 
 #define LIBGUESTFS_PATH_MAX 1024
 #define LIBGUESTFS_IO_LIMIT  2 * 1024 * 1024
+#define LIBGUEST_OS_ROOT "/sysroot"
 
-static int libguestfs_print_string(char ** string_buff)
+static int libguestfs_print_strings(char ** strings)
 {
     int index = 0;
     for(index=0;; index++) {
-        if(!string_buff[index]) { break; }
-        FUSEFS_DEBUG("%s\n", string_buff[index]);
+        if(!strings[index]) { break; }
+        FUSEFS_DEBUG("strings data (%s)\n", strings[index]);
     }
     return 0;
 }
 
-static int libguestfs_get_os_info(guestfs_h * g, char * os_dev, char ** os_info)
+static int libguestfs_free_strings(char ** strings)
+{
+    int index = 0;
+    for(index=0;; index++) {
+        if(!strings[index]) { break; }
+        free(strings[index]);
+        strings[index] = NULL;
+    }
+    return 0;
+}
+
+static int libguestfs_find_mountpoint(char * string, libguestfs_dev_t * devs, int devs_num)
 {
     int rc = 0;
-    char *info = NULL;
+    int index = 0;
 
-    FUSEFS_TRACE("guestfs_inspect_get_osinfo enter");
-    info = guestfs_inspect_get_osinfo(g, os_dev);
-    if (info == NULL) {
-        rc = -1;
-        FUSEFS_ERROR("guestfs_inspect_get_osinfo failed");
+    for(index=0; index < devs_num; index++) {
+        if (strcmp(string, devs[index].d_dev) == 0) {
+            rc = index;
+            goto l_out;
+        }
+    }
+    rc = -1;
+l_out:
+    return rc;
+}
+
+static int libguestfs_init_dev(libguestfs_dev_t * dev)
+{
+    dev->d_dev = NULL;
+    dev->d_ismounted = 0;
+    dev->d_mkmounted = 0;
+    dev->d_mountpoint = NULL;
+    dev->d_need_mk_mountpoint = 0;
+
+    return 0;
+}
+
+static int libguestfs_destroy_dev(libguestfs_dev_t * dev)
+{
+    if (dev->d_dev) { free(dev->d_dev); dev->d_dev = NULL; }
+    if (dev->d_mountpoint) { free(dev->d_mountpoint); dev->d_mountpoint = NULL; }
+    dev->d_ismounted = 0;
+    dev->d_mkmounted = 0;
+    dev->d_need_mk_mountpoint = 0;
+    return 0;
+}
+
+static int libguestfs_get_os_devs(void* private)
+{
+    int rc = 0;
+    int index = 0;
+    int os_dev_num = 0;
+    char * os_info = NULL;
+    char ** guest_os_devs = NULL;
+    libguestfs_dev_t * init_dev = NULL;
+    libguestfs_dev_t * os_dev = NULL;
+    libguestfs_t * fs = NULL;
+
+    FUSEFS_TRACE("libguestfs_get_os_devs enter");
+
+     fs = (libguestfs_t *)(private);
+    init_dev = &fs->gfs_mountinfo.m_init_dev;
+    os_dev = &fs->gfs_mountinfo.m_os_dev;
+
+    guest_os_devs = guestfs_inspect_os(fs->gfs_libgfs);
+    if (guest_os_devs == NULL) {
+        rc = -guestfs_last_errno(fs->gfs_libgfs);
+        FUSEFS_ERROR("guestfs_inspect_get_osinfo failed ");
         goto l_out;
     }
-    *os_info = strdup(info);
+
+    FUSEFS_TRACE("os = ");
+    libguestfs_print_strings(guest_os_devs);
+
+    for(index = 0;;index++) {
+        if (!guest_os_devs[index]) {break;}
+        os_dev_num++;
+
+        os_info = guestfs_inspect_get_osinfo(fs->gfs_libgfs, guest_os_devs[index]);
+        if (os_info == NULL) {
+            rc = -guestfs_last_errno(fs->gfs_libgfs);
+            FUSEFS_ERROR("guestfs_inspect_get_osinfo failed, errno(%s)", rc);
+            goto l_free_guestos_devs;
+        }
+        FUSEFS_DEBUG("guestfs_inspect_get_osinfo os(%s), info(%s)", guest_os_devs[index], os_info);
+        if (strcmp("cirros2011.8", os_info) == 0) {
+            libguestfs_init_dev(init_dev);
+            init_dev->d_dev = strdup(guest_os_devs[index]);
+            init_dev->d_mountpoint = strdup("/");
+        } else {
+            libguestfs_init_dev(os_dev);
+            os_dev->d_dev = strdup(guest_os_devs[index]);
+            os_dev->d_mountpoint = strdup(fs->gfs_config.gfs_root);
+            os_dev->d_need_mk_mountpoint = 1;
+        }
+        free(os_info);
+        os_info = NULL;
+    }
+    if (os_dev_num > 2) {
+        rc = -EINVAL;
+        FUSEFS_ERROR("mutil os failed errno(%d)", rc);
+        goto l_free_guestos_devs;
+    }
+
+    libguestfs_free_strings(guest_os_devs);
     rc = 0;
-    FUSEFS_DEBUG("guestfs_inspect_get_osinfo os(%s), info(%s)", os_dev, *os_info);
+
+l_out:
+    FUSEFS_TRACE("libguestfs_get_os_devs exit");
+    return rc;
+
+l_free_guestos_devs:
+    libguestfs_free_strings(guest_os_devs);
+    goto l_out;
+}
+
+static int libguestfs_get_mp_devs(void* private)
+{
+    int rc = 0;
+    int index = 0;
+    int mp_devs_index = 0;
+    libguestfs_dev_t * os_dev = NULL;
+    libguestfs_dev_t * mp_devs = NULL;
+    libguestfs_t * fs = NULL;
+    char ** guest_mountpoints = NULL;
+
+    FUSEFS_TRACE("libguestfs_get_mp_devs enter");
+    fs = (libguestfs_t *)(private);
+    os_dev = &fs->gfs_mountinfo.m_os_dev;
+    mp_devs = fs->gfs_mountinfo.m_mp_dev;
+
+    guest_mountpoints = guestfs_inspect_get_mountpoints(fs->gfs_libgfs,
+                    os_dev->d_dev);
+    if (!guest_mountpoints) {
+        rc = -guestfs_last_errno(fs->gfs_libgfs);
+        FUSEFS_ERROR("guestfs_inspect_get_mountpoints failed errno(%d)", rc);
+        goto l_out;
+    }
+    FUSEFS_TRACE("mountpoint = %s", fs->gfs_mountinfo.m_os_dev.d_dev);
+    libguestfs_print_strings(guest_mountpoints);
+
+    for(index = 0;;index++) {
+        if (!guest_mountpoints[index]) {break;}
+         if (index % 2 == 0) {
+            libguestfs_init_dev(&mp_devs[mp_devs_index]);
+            mp_devs[mp_devs_index].d_mountpoint = strdup(guest_mountpoints[index]);
+            index = index + 1;
+            mp_devs[mp_devs_index].d_dev = strdup(guest_mountpoints[index]);
+            mp_devs_index = mp_devs_index + 1;
+         }
+    }
+
+    fs->gfs_mountinfo.m_mp_num = mp_devs_index;
+    libguestfs_free_strings(guest_mountpoints);
+    rc = 0;
+
+l_out:
+    FUSEFS_TRACE("libguestfs_get_mp_devs exit");
+    return rc;
+
+
+l_free_mountpoints:
+    libguestfs_free_strings(guest_mountpoints);
+    goto l_out;
+}
+
+static int libguestfs_get_fs_devs(void* private)
+{
+    int rc = 0;
+    int index = 0;
+    int index_fs_index = 0;
+
+    char ** guest_fs_devs = NULL;
+    libguestfs_dev_t * init_dev = NULL;
+    libguestfs_dev_t * os_dev = NULL;
+    libguestfs_dev_t * mp_devs = NULL;
+    libguestfs_dev_t * fs_devs = NULL;
+
+    char itor_part_mountpoint[100] = {0};
+    libguestfs_t * fs = NULL;
+
+    FUSEFS_TRACE("libguestfs_get_fs_devs enter");
+    fs = (libguestfs_t *)(private);
+    init_dev = &fs->gfs_mountinfo.m_init_dev;
+    os_dev = &fs->gfs_mountinfo.m_os_dev;
+    mp_devs = fs->gfs_mountinfo.m_mp_dev;
+    fs_devs = fs->gfs_mountinfo.m_fs_dev;
+
+    guest_fs_devs = guestfs_list_filesystems(fs->gfs_libgfs);
+    if (guest_fs_devs == NULL) {
+        rc = -guestfs_last_errno(fs->gfs_libgfs);
+        FUSEFS_ERROR("guestfs_list_filesystems failed errno(%d)", rc);
+        goto l_out;
+    }
+    FUSEFS_TRACE("guest_fs_devs = ");
+    libguestfs_print_strings(guest_fs_devs);
+
+    for(index = 0;;index++) {
+        if (!guest_fs_devs[index]) {break;}
+        if (index % 2 == 1) {continue;}
+        if (strcmp(guest_fs_devs[index], init_dev->d_dev) == 0) { index++; continue;}
+        if (strcmp(guest_fs_devs[index], os_dev->d_dev) == 0) { index++; continue; }
+        rc = libguestfs_find_mountpoint(guest_fs_devs[index], mp_devs, fs->gfs_mountinfo.m_mp_num);
+        libguestfs_init_dev(&fs_devs[index_fs_index]);
+        if (rc >= 0) {
+             snprintf(itor_part_mountpoint, 20, "%s/%s",
+                        os_dev->d_mountpoint,
+                        mp_devs[rc].d_mountpoint);
+        } else {
+            snprintf(itor_part_mountpoint, 20, "%s/part_%d",
+                        os_dev->d_mountpoint,
+                        index_fs_index);
+            fs_devs[index_fs_index].d_need_mk_mountpoint = 1;
+        }
+
+        fs_devs[index_fs_index].d_dev = strdup(guest_fs_devs[index]);
+        fs_devs[index_fs_index].d_mountpoint = strdup(itor_part_mountpoint);
+        index_fs_index++;
+    }
+
+    fs->gfs_mountinfo.m_fs_num = index_fs_index;
+#if 1
+    FUSEFS_TRACE("------partdev mountpoint");
+    for (index = 0; index < fs->gfs_mountinfo.m_fs_num; index++) {
+        FUSEFS_TRACE("(%s)-(%s)",
+                        fs_devs[index].d_dev,
+                        fs_devs[index].d_mountpoint);
+    }
+#endif
+    libguestfs_free_strings(guest_fs_devs);
+    rc = 0;
 
 l_out:
     FUSEFS_TRACE("guestfs_inspect_get_osinfo exit");
     return rc;
+
+l_free_guest_fs_devs:
+    libguestfs_free_strings(guest_fs_devs);
+    goto l_out;
 }
+
+static int libguestfs_put_devs(void* private)
+{
+    int rc = 0;
+    int index = 0;
+    int index_fs_index = 0;
+
+    char ** guest_fs_devs = NULL;
+    libguestfs_dev_t * init_dev = NULL;
+    libguestfs_dev_t * os_dev = NULL;
+    libguestfs_dev_t * mp_devs = NULL;
+    libguestfs_dev_t * fs_devs = NULL;
+
+    char itor_part_mountpoint[100] = {0};
+    libguestfs_t * fs = NULL;
+
+    fs = (libguestfs_t *)(private);
+    init_dev = &fs->gfs_mountinfo.m_init_dev;
+    os_dev = &fs->gfs_mountinfo.m_os_dev;
+    mp_devs = fs->gfs_mountinfo.m_mp_dev;
+    fs_devs = fs->gfs_mountinfo.m_fs_dev;
+
+    libguestfs_destroy_dev(init_dev);
+    libguestfs_destroy_dev(os_dev);
+    for (index = 0; index < fs->gfs_mountinfo.m_mp_num; index++) {
+        libguestfs_destroy_dev(&mp_devs[index]);
+    }
+    for (index = 0; index < fs->gfs_mountinfo.m_fs_num; index++) {
+        libguestfs_destroy_dev(&fs_devs[index]);
+    }
+    return 0;
+}
+
+static int libguestfs_get_devs(void * private)
+{
+    int rc = 0;
+    int index = 0;
+
+    libguestfs_t * fs = (libguestfs_t *)(private);
+
+    FUSEFS_TRACE("guestfs_inspect_get_osinfo enter");
+
+    rc = libguestfs_get_os_devs(fs);
+    if (rc < 0) {
+        goto l_out;
+    }
+
+    rc = libguestfs_get_mp_devs(fs);
+    if (rc < 0) {
+        goto l_clean_devs;
+    }
+
+    rc = libguestfs_get_fs_devs(fs);
+    if (rc < 0) {
+        goto l_clean_devs;
+    }
+
+    rc = 0;
+
+l_out:
+    FUSEFS_TRACE("guestfs_inspect_get_osinfo exit");
+    return rc;
+
+l_clean_devs:
+    libguestfs_put_devs(fs);
+    goto l_out;
+}
+
+static int libguestfs_clean_fs_mp(void * private, int force)
+{
+    int rc = 0;
+    int index = 0;
+    libguestfs_dev_t * os_dev = NULL;
+    libguestfs_dev_t * fs_devs = NULL;
+
+    char itor_part_path[20] = {0};
+    libguestfs_t * fs = NULL;
+
+     fs = (libguestfs_t *)(private);
+     os_dev = &fs->gfs_mountinfo.m_os_dev;
+     fs_devs = fs->gfs_mountinfo.m_fs_dev;
+
+    for (index = 0; index > fs->gfs_mountinfo.m_fs_num; index++) {
+        if (force || fs_devs[index].d_mkmounted != 0) {
+            guestfs_rmdir(fs->gfs_libgfs, fs_devs[index].d_mountpoint);
+        }
+    }
+
+    if (force || os_dev->d_mkmounted != 0) {
+        guestfs_rmdir(fs->gfs_libgfs, os_dev->d_mountpoint);
+    }
+   return 0;
+}
+
+static int libguestfs_mount_os(void * private)
+{
+    int rc = 0;
+    libguestfs_dev_t * os_dev = NULL;
+    libguestfs_t * fs = NULL;
+
+    FUSEFS_TRACE("libguestfs_mount_os enter");
+
+     fs = (libguestfs_t *)(private);
+     os_dev = &fs->gfs_mountinfo.m_os_dev;
+ 
+    if (!os_dev->d_dev) {
+        rc = 0;
+        goto l_out;
+    }
+    if (os_dev->d_need_mk_mountpoint) {
+        rc = guestfs_mkdir(fs->gfs_libgfs, os_dev->d_mountpoint);
+        if (rc < 0) {
+            rc = -guestfs_last_errno(fs->gfs_libgfs);
+            FUSEFS_ERROR("guestfs_mkdir failed errno(%d)", rc);
+            goto l_out;
+        }
+    }
+    os_dev->d_mkmounted = 1;
+    os_dev->d_ismounted = 1;
+    rc = 0;
+    FUSEFS_TRACE("libguestfs_mount_os ok");
+
+l_out:
+    FUSEFS_TRACE("libguestfs_mount_os exit");
+   return rc;
+
+l_rmrootdir:
+   guestfs_rmdir(fs->gfs_libgfs, os_dev->d_mountpoint);
+    goto l_out;
+}
+
+static int libguestfs_mount_part(void * private)
+{
+    int rc = 0;
+    int index = 0;
+    libguestfs_dev_t * fs_devs = NULL;
+    libguestfs_t * fs = NULL;
+
+    FUSEFS_TRACE("libguestfs_mount_part enter");
+
+     fs = (libguestfs_t *)(private);
+     fs_devs = fs->gfs_mountinfo.m_fs_dev;
+
+    for(index = 0; index < fs->gfs_mountinfo.m_fs_num ;index++) {
+        if (!fs_devs[index].d_dev) {
+            continue;
+        }
+        if (fs_devs[index].d_need_mk_mountpoint) {
+            rc = guestfs_mkdir(fs->gfs_libgfs,
+                            fs_devs[index].d_mountpoint);
+            if (rc < 0) {
+              rc = -guestfs_last_errno(fs->gfs_libgfs);
+              FUSEFS_ERROR("guestfs_mkdir failed errno(%d)", rc);
+              goto l_rmpartdir;
+            }
+            fs_devs[index].d_mkmounted = 1;
+        }
+
+        fs_devs[index].d_ismounted = 1;
+        FUSEFS_TRACE("libguestfs_mount_part ok part (%s) (%s) (%d)",
+                        fs_devs[index].d_dev,
+                        fs_devs[index].d_mountpoint,
+                        index);
+    }
+
+    rc = 0;
+    FUSEFS_TRACE("libguestfs_mount_part ok");
+
+l_out:
+     FUSEFS_TRACE("libguestfs_mount_part exit");
+   return rc;
+
+l_rmpartdir:
+    libguestfs_clean_fs_mp(fs, 0);
+    goto l_out;
+}
+
 
 static int libguestfs_init(void * private)
 {
@@ -62,19 +461,23 @@ static int libguestfs_init(void * private)
     
     for (index = 0; index < fs->gfs_config.gfs_bdevs_num; index++) {
         rc = guestfs_add_drive(fs->gfs_libgfs, (char *)fs->gfs_config.gfs_bdevs[index]);
-        if (rc< 0) {
-            FUSEFS_ERROR("guestfs_add_drive failed\n");
+        if (rc < 0) {
+            rc = -guestfs_last_errno(fs->gfs_libgfs);
+            FUSEFS_ERROR("guestfs_add_drive failed, errno(%d)", rc);
             rc = -1;
             goto l_out;
         }
+        FUSEFS_ERROR("guestfs_add_drive ok, dev(%s)", fs->gfs_config.gfs_bdevs[index]);
     }
 
+    FUSEFS_INFO("guestfs_add_drive ok ");
     rc = guestfs_launch(fs->gfs_libgfs);
     if (rc < 0) {
-        FUSEFS_ERROR("guestfs_launch failed");
-        rc = -1;
+        rc = -guestfs_last_errno(fs->gfs_libgfs);
+        FUSEFS_ERROR("guestfs_launch failed errno(%d)", rc);
         goto l_out;
     }
+     FUSEFS_INFO("guestfs_launch ok ");
 
     rc = 0;
     FUSEFS_TRACE("libguestfs_init ok");
@@ -98,104 +501,53 @@ static int libguestfs_mount(void * private)
 {
     int rc = 0;
     int index = 0;
-    int partid = 0;
-    char ** guest_os_devs = NULL;
-    char ** guest_fs_devs = NULL;
-    char ** guest_mountpoints = NULL;
-    char * itor_os_info = NULL;
-    char * init_dev = NULL;
-    char itor_part_dir[21] = {0};
-    char * dest_part = NULL;
-    size_t size = 0;
 
     libguestfs_t * fs = (libguestfs_t *)(private);
     FUSEFS_TRACE("libguestfs_mount enter ");
 
-    guest_os_devs = guestfs_inspect_os(fs->gfs_libgfs);
-    if (guest_os_devs == NULL) {
-        rc = guestfs_last_errno(fs->gfs_libgfs);
-        FUSEFS_ERROR("guestfs_inspect_get_osinfo failed ");
-        rc = -rc;
+    rc = libguestfs_get_devs(fs);
+    if (rc < 0) {
+        FUSEFS_ERROR("libguestfs_get_devs failed errno(%d)", rc);
         goto l_out;
     }
 
-    FUSEFS_TRACE("os");
-    libguestfs_print_string(guest_os_devs);
-    for(index = 0;;index++) {
-        if (!guest_os_devs[index]) {break;}
-        libguestfs_get_os_info(fs->gfs_libgfs, guest_os_devs[index], &itor_os_info);
-        if (strcmp("cirros2011.8", itor_os_info) == 0) {
-            fs->gfs_mountinfo.m_init_dev = strdup(guest_os_devs[index]);
-        }
-        free(itor_os_info);
-        itor_os_info = NULL;
+    if (fs->gfs_mountinfo.m_init_dev.d_dev == NULL) {
+        rc = -EINVAL;
+        FUSEFS_ERROR("not init dev failed errno(%d)", rc);
+        goto l_out;
     }
+    FUSEFS_ERROR("guestfs_mount start ok");
 
-    if (fs->gfs_mountinfo.m_init_dev == NULL) {
-        rc = -1;
+    rc = guestfs_mount(fs->gfs_libgfs, fs->gfs_mountinfo.m_init_dev.d_dev,
+                    fs->gfs_mountinfo.m_init_dev.d_mountpoint);
+    if (rc < 0) {
+        rc = -guestfs_last_errno(fs->gfs_libgfs);
+        FUSEFS_ERROR("guestfs_mount failed errno(%d)", rc);
+        goto l_out;
+    }
+    libguestfs_clean_fs_mp(fs, 1);
+
+    rc = libguestfs_mount_os(fs);
+    if (rc < 0) {
+        FUSEFS_ERROR("libguestfs_mount_os failed errno(%d)", rc);
         goto l_out;
     }
 
-    rc = guestfs_mount(fs->gfs_libgfs, fs->gfs_mountinfo.m_init_dev, "/");
-    if (rc == -1) {
-        rc = guestfs_last_errno(fs->gfs_libgfs);
-        FUSEFS_ERROR("guestfs_mount failed ");
-        rc = -rc;
-        goto l_out;
-    }
-
-    rc = guestfs_mkdir(fs->gfs_libgfs, "/sysroot");
-    if (rc == -1) {
-        rc = guestfs_last_errno(fs->gfs_libgfs);
-        FUSEFS_ERROR("guestfs_mkdir failed ");
-        rc = -rc;
-        goto l_umount;
-    }
-    guest_fs_devs = guestfs_list_filesystems(fs->gfs_libgfs);
-    if (guest_fs_devs == NULL) {
-        rc = guestfs_last_errno(fs->gfs_libgfs);
-        FUSEFS_ERROR("guestfs_list_filesystems failed");
-        rc = -rc;
-        goto l_rmrootdir;
-    }
-    libguestfs_print_string(guest_fs_devs);
-    for(index = 0;;index++) {
-      if (!guest_fs_devs[index]) {break;}
-      if (index % 2 == 1) {continue;}
-      if (strcmp(guest_fs_devs[index], fs->gfs_mountinfo.m_init_dev) == 0) { index++; continue;}
-  #if 0
-      guest_mountpoints = guestfs_inspect_get_mountpoints(fs->gfs_libgfs, guest_fs_devs[index]);
-      if (guest_mountpoints != NULL) {
-          fprintf(stderr, "guestfs_inspect_get_mountpoints %s\n", guest_fs_devs[index]);
-          libguestfs_print_string(guest_mountpoints);
-      }
-  #endif
-      size = snprintf(itor_part_dir, 20, "/sysroot/part_%d", partid);
-      rc = guestfs_mkdir(fs->gfs_libgfs, itor_part_dir);
-      if (rc == -1) {
-        rc = guestfs_last_errno(fs->gfs_libgfs);
-        FUSEFS_ERROR("guestfs_mkdir failed\n");
-        rc = -rc;
+    rc = libguestfs_mount_part(fs);
+    if (rc < 0) {
+        FUSEFS_ERROR("libguestfs_mount_os failed errno(%d)", rc);
         goto l_rmpartdir;
-      }
-      dest_part = (char*)fs->gfs_mountinfo.m_part_dev[partid];
-      dest_part = strdup(itor_part_dir);
-      partid = partid + 1;
     }
-    fs->gfs_mountinfo.m_partnum = partid;
+
     rc = 0;
+    FUSEFS_TRACE("libguestfs_mount ok");
 
 l_out:
     FUSEFS_TRACE("libguestfs_mount exit");
     return rc;
 
 l_rmpartdir:
-    for(index = 0; index < partid; index++) {
-        snprintf(itor_part_dir, 20, "/sysroot/part_%d", partid);
-        guestfs_rmdir(fs->gfs_libgfs, itor_part_dir);
-    }
-l_rmrootdir:
-    guestfs_rmdir(fs->gfs_libgfs, "/sysroot");
+    libguestfs_clean_fs_mp(fs, 0);
 l_umount:
     guestfs_umount(fs->gfs_libgfs, "/");
     goto l_out;
@@ -210,17 +562,16 @@ static int libguestfs_umount(void * private)
 
     FUSEFS_TRACE("libguestfs_umount enter");
 
-    for(index = 0; index < fs->gfs_mountinfo.m_partnum; index++) {
-        snprintf(itor_part_dir, 20, "/sysroot/part_%d", index);
-        guestfs_rmdir(fs->gfs_libgfs, itor_part_dir);
-    }
+    libguestfs_clean_fs_mp(fs->gfs_libgfs, 0);
     rc = guestfs_umount(fs->gfs_libgfs, "/");
     if (rc < 0) {
-        rc = guestfs_last_errno(fs->gfs_libgfs);
-        FUSEFS_ERROR("guestfs_umount failed\n");
-        rc = -rc;
+        rc = -guestfs_last_errno(fs->gfs_libgfs);
+        FUSEFS_ERROR("guestfs_umount failed errno(%d)", rc);
         goto l_out;
     }
+    rc = 0;
+    FUSEFS_TRACE("libguestfs_umount ok");
+    libguestfs_put_devs(fs);
 
 l_out:
     FUSEFS_TRACE("libguestfs_umount exit");
@@ -231,8 +582,11 @@ static int libguestfs_trans_path(void * private, const char * path, char * real_
 {
     libguestfs_t * fs = (libguestfs_t*)private;
     libguestfs_config_t * config = &fs->gfs_config;
-
-    snprintf(real_path, LIBGUESTFS_PATH_MAX, "%s", config->gfs_root, path);
+#if 1
+    snprintf(real_path, LIBGUESTFS_PATH_MAX, "%s/%s", config->gfs_root, path);
+#else
+    snprintf(real_path, LIBGUESTFS_PATH_MAX, "%s", path);
+#endif
     return 0;
 }
 
@@ -257,7 +611,7 @@ static int libguestfs_stat(void * private, const char *path, struct statvfs *s)
 
     guest_s = guestfs_statvfs(fs->gfs_libgfs, real_path);
      if (!guest_s) {
-        rc = guestfs_last_errno(fs->gfs_libgfs);
+        rc = -guestfs_last_errno(fs->gfs_libgfs);
         FUSEFS_ERROR("statvfs failed, errno(%d) %s-%s", rc, path, real_path);
         goto l_out;
     }
@@ -297,7 +651,7 @@ static int libguestfs_getattr(void * private, const char *path, struct stat *s)
     guest_s = guestfs_lstat(fs->gfs_libgfs, path);
     if (!guest_s) {
         rc = -guestfs_last_errno(fs->gfs_libgfs);
-        FUSEFS_ERROR("guestfs_lstat failed %s-%s", path, real_path);
+        FUSEFS_ERROR("guestfs_lstat failed %s-%s errno(%d)", path, real_path, rc);
         goto l_out;
     }
 
@@ -337,7 +691,7 @@ static int libguestfs_access(void * private, const char *path, int mask)
 
     rc = libguestfs_getattr(private, path, &statbuf);
     if (rc < 0) {
-         FUSEFS_TRACE("fg_getattr ok %s-%s", path, real_path);
+         FUSEFS_ERROR("fg_getattr ok %s-%s errno(%d)", path, real_path, rc);
         goto l_out;
     }
 
@@ -362,7 +716,7 @@ static int libguestfs_mkdir(void * private, const char *path, mode_t mode)
     rc = guestfs_mkdir_mode(fs->gfs_libgfs, real_path, mode);
     if (rc < 0) {
         rc = -guestfs_last_errno(fs->gfs_libgfs);
-        FUSEFS_ERROR("access failed, errno(%d) %s-%s", rc, path, real_path);
+        FUSEFS_ERROR("mkdir failed, errno(%d) %s-%s", rc, path, real_path);
         goto l_out;
     }
 
@@ -383,10 +737,16 @@ static int libguestfs_opendir(void * private, const char *path, void **dp)
 
     libguestfs_trans_path(private, path, real_path);
     FUSEFS_TRACE("libguestfs_opendir enter %s-%s", path, real_path);
+    libguestfs_dp = (libguestfs_dir_t*)malloc(sizeof(libguestfs_dir_t));
+    if (!libguestfs_dp){
+        rc = -ENOMEM;
+         FUSEFS_TRACE("libguestfs_opendir failed %s-%s errno(%s)", path, real_path, rc);
+        goto l_out;
+    }
 
-    libguestfs_dp->d_path = strdup(path);
+    libguestfs_dp->d_path = strdup(real_path);
     libguestfs_dp->d_index = 0;
-    libguestfs_dp->d_itor = malloc(sizeof(struct dirent));
+    libguestfs_dp->d_itor = (struct dirent *)malloc(sizeof(struct dirent));
     if (!libguestfs_dp->d_itor) {
       rc = -ENOMEM;
       goto l_free_path;
@@ -407,38 +767,40 @@ l_free_path:
 
 static int libguestfs_closedir(void * private, void *dp)
 {
-    libguestfs_dir_t * libguestfs_dp = (libguestfs_dir_t*)dp;
+    libguestfs_dir_t * libguestfs_dp =NULL;
 
+    libguestfs_dp = (libguestfs_dir_t*)dp;
     FUSEFS_TRACE("libguestfs_closedir enter %p", dp);
     free(libguestfs_dp->d_itor);
     free(libguestfs_dp->d_path);
-    FUSEFS_TRACE("libguestfs_closedir ok %p", dp);
+    free(libguestfs_dp);
+    FUSEFS_TRACE("libguestfs_closedir ok");
 
-    FUSEFS_TRACE("libguestfs_closedir exit %p", dp);
+l_out:
+    FUSEFS_TRACE("libguestfs_closedir exit");
     return 0;
 }
 
-static int libguestfs_readdir(void * private, void *dp,
-                    struct dirent **de)
+static struct dirent * libguestfs_readdir(void * private, void *dp)
 {
     int rc = 0;
     libguestfs_dir_t *libguestfs_dp = NULL;
+    struct dirent * out = NULL;
     libguestfs_t * fs = (libguestfs_t *)(private);
 
-    FUSEFS_TRACE("libguestfs_readdir enter %p", dp);
     libguestfs_dp = (libguestfs_dir_t*)dp;
+    FUSEFS_TRACE("libguestfs_readdir enter %p %s", dp, libguestfs_dp->d_path);
 
     if (!libguestfs_dp->d_ents) {
         libguestfs_dp->d_ents = guestfs_readdir(fs->gfs_libgfs, libguestfs_dp->d_path);
-    }
-    if (libguestfs_dp->d_ents == NULL) {
-      rc = guestfs_last_errno(fs->gfs_libgfs);
-      rc = -rc;
-      goto l_out;
+        if (libguestfs_dp->d_ents == NULL) {
+             rc = -guestfs_last_errno(fs->gfs_libgfs);
+             FUSEFS_ERROR("guestfs_readdir failed %d %s", rc, libguestfs_dp->d_path);
+            goto l_out;
+        }
     }
 
-    if (libguestfs_dp->d_index == libguestfs_dp->d_ents->len) {
-        rc = 0;
+    if (libguestfs_dp->d_index >= libguestfs_dp->d_ents->len) {
         goto l_out;
     }
 
@@ -458,13 +820,22 @@ static int libguestfs_readdir(void * private, void *dp,
         default:  libguestfs_dp->d_itor->d_type = DT_UNKNOWN;
     }
 
-    *de = libguestfs_dp->d_itor;
-    rc = 0;
-    FUSEFS_TRACE("libguestfs_readdir ok %p", dp);
+    FUSEFS_TRACE("guestfs_readdir entry %s %s, %d %d %d %d",
+                    libguestfs_dp->d_path,
+                    libguestfs_dp->d_itor->d_name,
+                    libguestfs_dp->d_itor->d_ino,
+                    libguestfs_dp->d_itor->d_type,
+                    libguestfs_dp->d_index,
+                    libguestfs_dp->d_ents->len);
+
+    out = libguestfs_dp->d_itor;
+    libguestfs_dp->d_index++;
+
+    FUSEFS_TRACE("libguestfs_readdir ok %p %s", dp, libguestfs_dp->d_path);
 
 l_out:
-    FUSEFS_TRACE("libguestfs_readdir exit %p", dp);
-    return rc;
+    FUSEFS_TRACE("libguestfs_readdir exit %p %s", dp, libguestfs_dp->d_path);
+    return out;
 }
 
 static int libguestfs_rename(void * private, const char *from, const char *to)
@@ -1084,6 +1455,8 @@ l_out:
 
 static storage_op_t g_libguestfs_op =
 {
+    .init = libguestfs_init,
+    .exit = libguestfs_exit,
     .mount = libguestfs_mount,
     .umount = libguestfs_umount,
     .stat = libguestfs_stat,
@@ -1116,7 +1489,6 @@ int libguestfs_malloc_fs(void * fuse_storage)
     int rc = 0;
     libguestfs_t * entry = NULL;
     fusefs_storage_t * storage = NULL;
-    char * dest_dev = NULL;
 
     FUSEFS_TRACE("malloc_libguestfs enter");
     storage = (fusefs_storage_t *)fuse_storage;
@@ -1135,12 +1507,24 @@ int libguestfs_malloc_fs(void * fuse_storage)
 
     entry->gfs_op = &g_libguestfs_op;
     for (index = 0; index < storage->s_config.sc_devs_num; index++) {
-        dest_dev = (char*)entry->gfs_config.gfs_bdevs[index];
-        dest_dev = strdup((char *)storage->s_config.sc_devs[index]);
+        entry->gfs_config.gfs_bdevs[index] = strdup((char *)storage->s_config.sc_devs[index]);
     }
     entry->gfs_config.gfs_bdevs_num = storage->s_config.sc_devs_num;
     entry->gfs_config.gfs_bdevs[entry->gfs_config.gfs_bdevs_num] = NULL;
-    entry->gfs_config.gfs_root = strdup("/");
+
+    entry->gfs_config.gfs_root = strdup(LIBGUEST_OS_ROOT);
+    libguestfs_destroy_dev(&entry->gfs_mountinfo.m_init_dev);
+    libguestfs_destroy_dev(&entry->gfs_mountinfo.m_os_dev);
+    entry->gfs_mountinfo.m_init_dev.d_dev = NULL;
+    entry->gfs_mountinfo.m_init_dev.d_mountpoint = NULL;
+    entry->gfs_mountinfo.m_os_dev.d_dev = NULL;
+    entry->gfs_mountinfo.m_os_dev.d_mountpoint = NULL;
+    for (index = 0; index < 100; index++) {
+        libguestfs_destroy_dev(&entry->gfs_mountinfo.m_mp_dev[index]);
+        libguestfs_destroy_dev(&entry->gfs_mountinfo.m_fs_dev[index]);
+    }
+    entry->gfs_mountinfo.m_fs_num = 0;
+    entry->gfs_mountinfo.m_mp_num = 0;
 
     storage->s_agent.as_stroage = (void*)entry;
     storage->s_agent.as_stroage_op = &g_libguestfs_op;
@@ -1163,7 +1547,11 @@ void libguestfs_free_fs(void * fuse_storage)
 
     free(entry->gfs_config.gfs_root);
     for (index = 0; index < entry->gfs_config.gfs_bdevs_num; index++) {
+        if (!entry->gfs_config.gfs_bdevs[index]) {
+            continue;
+        }
         free(entry->gfs_config.gfs_bdevs[index]);
+        entry->gfs_config.gfs_bdevs[index] = NULL;
     }
     
     guestfs_close(entry->gfs_libgfs);

@@ -210,12 +210,12 @@ l_out:
     return 0;
 }
 
-static int passfs_readdir(void * private, void *dp,
-                    struct dirent **de)
+static struct dirent * passfs_readdir(void * private, void *dp)
 {
     int rc = 0;
      DIR *passfs_dp = NULL;
     struct dirent * entry = NULL;
+    struct dirent * out = NULL;
 
     FUSEFS_TRACE("passfs_readdir enter %p", dp);
     passfs_dp = (DIR*)dp;
@@ -223,17 +223,16 @@ static int passfs_readdir(void * private, void *dp,
     if (!entry) {
         rc = -errno;
         FUSEFS_ERROR("readdir failed %d", rc);
-        rc = -1;
         goto l_out;
     }
 
-    *de = entry;
+    out = entry;
     rc = 0;
     FUSEFS_TRACE("passfs_readdir ok %p", dp);
 
 l_out:
     FUSEFS_TRACE("passfs_readdir exit %p", dp);
-    return rc;
+    return out;
 }
 
 static int passfs_rename(void * private, const char *from, const char *to)
