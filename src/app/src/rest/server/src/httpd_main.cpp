@@ -8,7 +8,11 @@ int main(int argc, char *argv[])
     HTTPDConfigurePtr configPtr = std::make_shared<HTTPDConfigure>();
     configPtr->parse(argc, argv);
 
-    HTTPDServerPtr serverPtr = std::make_shared<HTTPDServer>(configPtr.get());
+    HTTPDHandlerPtr handlerPtr = std::make_shared<HTTPDHandler>(configPtr.get());
+
+    HTTPDServerPtr serverPtr = std::make_shared<HTTPDServer>(configPtr.get(),
+                    handlerPtr.get());
+
     serverPtr->init();
     serverPtr->start();
     serverPtr->loop();
