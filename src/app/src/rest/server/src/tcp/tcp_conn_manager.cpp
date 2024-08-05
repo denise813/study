@@ -92,7 +92,7 @@ int TcpConnManager::recvEntry()
                 break;
             }
             m_timerPtr->updateEvent(contextPtr->getFd());
-            rc = m_handler->process_request(contextPtr);
+            rc = m_handler->process_read(contextPtr);
             if (rc == TCP_EVENT_TYPE_RECV_CONTINUE) {
                 SocketAPI::modify_epoll_event(m_epfd, contextPtr->getFd(), EPOLLIN);
                 continue;
