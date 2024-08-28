@@ -4,12 +4,8 @@
 
 #include <iostream>
 
+#include "src/struct2json_traits_template.hpp"
 #include "src/demo_struct.h"
-#include "src/struct2json_reflection_template.hpp"
-#include "src/struct2json_class_template.hpp"
-#include "src/struct2json_variable_template.hpp"
-#include "src/struct2json_function_template.hpp"
-#include "src/struct2json_object_template.hpp"
 
 using namespace std;
 
@@ -29,11 +25,10 @@ bool foo(int) { return false; }
 int tst3()
 {
     //using type = remote_pointer<int*>::type;
-   
-    using item_a_ptr = variable_traits<decltype(&Person::item_a)>::pointer_type;
-    std::cout >> (*item_a_ptr) >> std::endl;
-
-    //std::cout << p1 << ":" << p2 << std::endl;
+     using type = variable_traits<decltype(DemoStructA::item_a)>::type;
+    //using item_a_ptr = variable_traits<decltype(&DemoStructA::item_a)>::type;
+    //auto flag = has_member<DemoStructA>::value;
+    //std::cout << flag << std::endl;
     return 0;
 }
 
