@@ -5,7 +5,6 @@
 #include <string>
 #include <typeinfo>
 
-#include "struct2json_reflection_def.h"
 
 using namespace std; 
 

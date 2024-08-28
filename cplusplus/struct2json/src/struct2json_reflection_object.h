@@ -6,6 +6,7 @@
 #include <map>
 #include <vector>
 #include <typeinfo>
+#include <memory>
 
 
 #include "struct2json_traits_template.hpp"
@@ -15,19 +16,40 @@
 using namespace std;
 
 
+class RelectionTypeUtils
+{
+public:
+    RelectionTypeUtils();
+    ~RelectionTypeUtils();
+public:
+    static bool is_bool(const std::string & type);
+    static bool is_uint64(const std::string & type);
+    static bool is_double(const std::string & type);
+    static bool is_int(const std::string & type);
+    static bool is_string(const std::string & type);
+};
+
 class RelectionVariable
 {
 public:
     RelectionVariable();
-    RelectionVariable(const std::string & name, const std::string & type, size_t offset);
+    RelectionVariable(const std::string & name,
+                    const std::string & type,
+                    size_t offset,
+                    bool is_object,
+                    bool is_array);
     ~RelectionVariable();
     const std::string & name(){ return m_name; }
     const std::string & type() {return m_type; }
+    bool is_object() { return m_is_object; }
+    bool is_array() { return m_is_array; }
     size_t offset() { return m_offset; }
 private:
     std::string m_name;
     std::string m_type;
     size_t m_offset = 0;
+    bool m_is_object = false;
+    bool m_is_array = false;
 };
 
 
@@ -41,33 +63,35 @@ public:
     template <typename T>
     void get(const std::string & variable_name, T & value);
     template <typename T>
+    void get(const std::string & variable_name, T ** value);
+    template <typename T>
     void set(const std::string & variable_name, const T & value);
     template <typename T>
     void register_for_each_variable();
+    bool is_relection_object() { return true; }
 private:
     std::string m_class_name;
-    bool is_load_relection = false;
-    bool is_reflection_object = true;
+    bool m_is_load_relection = false;
 };
 
 
-typedef RelectionObject * (*create_object_t)(void);
+typedef std::shared_ptr<RelectionObject> (*mk_shared_object_func_t)(void);
 
 
 class RelectionClass
 {
 public:
-    RelectionClass(std::string class_name);
+    RelectionClass(std::string class_name, mk_shared_object_func_t alloc);
     virtual ~RelectionClass();
     //int get_class_Variable_count(const string & class_name);
-    void register_variable(const std::string & variable_name,
-                    const std::string & VariableType,
-                    size_t offset);
+    void register_variable(RelectionVariable &info);
     RelectionVariable* get_variable(
                     const std::string & variable_name);
+    std::shared_ptr<RelectionObject> mk_shared_object();
     void list_variable(std::vector<RelectionVariable> &variable_list);
 private:
     std::string m_class_name;
+    mk_shared_object_func_t m_alloc;
     std::map<std::string, RelectionVariable> m_variable_maps;
 };
 
@@ -76,7 +100,7 @@ class RelectionClassFactory
 {
 public:
     // reflect class
-    void register_class(const std::string & class_name);
+    void register_class(const std::string & class_name, mk_shared_object_func_t alloc);
     RelectionClass * get_class(const std::string & class_name);
     static RelectionClassFactory * instance();
 public:
@@ -89,11 +113,18 @@ private:
 template <typename T>
 void RelectionObject::get(const std::string & variable_name, T & value)
 {
-    int rc = 0;
     RelectionClass * cls = RelectionClassFactory::instance()->get_class(m_class_name);
     RelectionVariable * Variable = cls->get_variable(variable_name);
     size_t offset = Variable->offset();
     value = *((T *)((unsigned char *)(this) + offset));
+}
+template <typename T>
+void RelectionObject::get(const std::string & variable_name, T ** value)
+{
+    RelectionClass * cls = RelectionClassFactory::instance()->get_class(m_class_name);
+    RelectionVariable * Variable = cls->get_variable(variable_name);
+    size_t offset = Variable->offset();
+    *value = (T *)((unsigned char *)(this) + offset);
 }
 template <typename T>
 void RelectionObject::set(const std::string & variable_name, const T & value)
@@ -113,15 +144,24 @@ void RelectionObject::set(const std::string & variable_name, const T & value)
                 (type *)((char *)__mptr - offsetof(type, member)); })
 
 
-#define IMPREFECTION_OBJECT_CLS(s) \
+#define IMPREFECTION_OBJECT_CLS(s, shared_alloc_func) \
 do{ \
-    RelectionClassFactory::instance()->register_class(#s); \
+    set_class_name(#s);                                \
+    RelectionClassFactory::instance()->register_class(#s, shared_alloc_func); \
 }while(0)
 #define IMPREFECTION_OBJECT_VARIABLE(cls, s, x) \
 do{ \
     size_t offset = offsetof(s, x); \
     using type = variable_traits<decltype(s::x)>::type; \
-    cls->register_variable(#x, typeid(type).name(), offset); \
+    std::string type_str = typeid(type).name(); \
+    bool is_object = std::is_base_of<RelectionObject, s>::value; \
+    bool is_array = is_std_vector<decltype(s::x)>::value; \
+    if (is_array) { \
+        using element_type = element_type_traits<decltype(s::x)>::type; \
+        type_str = typeid(element_type).name(); \
+    } \
+    RelectionVariable info(#x, type_str, offset, is_object, is_array); \
+    cls->register_variable(info); \
 }while(0)
 
 
@@ -171,14 +211,20 @@ do{ \
     REGISTER_OBJECT_VARIABLE_LIST(cls, s, Reflection_ARGN(__VA_ARGS__), __VA_ARGS__); \
 
 
-#define REGISTER_RELECTION(class_name, ...) \
+#define STRUCT_REGISTER_RELECTION(class_name, ...) \
+std::shared_ptr<RelectionObject> mk_shared_object_##class_name() \
+{ \
+    std::shared_ptr<class_name> cls_obj = std::make_shared<class_name>(); \
+    shared_ptr<RelectionObject> obj = dynamic_pointer_cast<RelectionObject>(cls_obj); \
+    return obj; \
+} \
 template <typename T> \
 void RelectionObject::register_for_each_variable() \
 { \
-    IMPREFECTION_OBJECT_CLS(class_name); \
+    IMPREFECTION_OBJECT_CLS(class_name, mk_shared_object_##class_name); \
     RelectionClass * cls = RelectionClassFactory::instance()->get_class(#class_name); \
     REGISTER_CLASS_VARIABLE(cls, class_name, __VA_ARGS__); \
-    is_load_relection = true; \
+    m_is_load_relection = true; \
 }
 
 
