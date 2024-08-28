@@ -5,60 +5,42 @@
 #include <iostream>
 
 #include "src/demo_struct.h"
+#include "src/struct2json_reflection_template.hpp"
+#include "src/struct2json_class_template.hpp"
+#include "src/struct2json_variable_template.hpp"
+#include "src/struct2json_function_template.hpp"
+#include "src/struct2json_object_template.hpp"
 
+using namespace std;
 
 int tst1()
 {
-    DemoStructA a;
-   std::string a_structStr;
-
-   a.item_a = 1;
-   a.item_b = 2;
-
-   a_structStr = a.ToString();
-
-   std::cout << "ToString: json=" << std::endl <<
-            a_structStr <<  std::endl <<
-            "----" << std::endl;
-
-    DemoStructA b;
-
-    b.FormString(a_structStr);
-
-    std::cout << "formString: b.item_a" << std::endl <<
-            b.item_a <<  std::endl <<
-            "----" << std::endl;
     return 0;
 }
 
 int tst2()
 {
-   DemoStructB a;
-   std::string a_structStr;
-
-   a.item_a = 1;
-   a.item_b = 2;
-
-   a_structStr = a.ToString();
-
-   std::cout << "ToString: json=" << std::endl <<
-            a_structStr <<  std::endl <<
-            "----" << std::endl;
-
-    DemoStructB b;
-    b.FormString(a_structStr);
-
-    std::cout << "formString: b.item_a" << std::endl <<
-            b.item_a <<  std::endl <<
-            "----" << std::endl;
     return 0;
 }
 
 
+bool foo(int) { return false; }
+
+int tst3()
+{
+    //using type = remote_pointer<int*>::type;
+   
+    using item_a_ptr = variable_traits<decltype(&Person::item_a)>::pointer_type;
+    std::cout >> (*item_a_ptr) >> std::endl;
+
+    //std::cout << p1 << ":" << p2 << std::endl;
+    return 0;
+}
+
 int main(int argc, char* argv[])
 {
    //tst1();
-   tst2();
+   tst3();
 }
 
 

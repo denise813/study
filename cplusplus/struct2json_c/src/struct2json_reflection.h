@@ -9,18 +9,13 @@
 using namespace std; 
 
 
-#ifndef offsetof
-#define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
-#endif
-
-
 typedef struct reflection_type_info
 {
 public:
     std::string m_var_type;
     std::string m_var_name;
     std::string m_this_type;
-    T * m_data;
+    void * m_data;
 }reflection_type_info_t;
 
 
@@ -35,13 +30,20 @@ public:
 })
 
 
-#define IMPReflectionField(class_name, type, filed_name) \
-    template <class type>
-    void _reflect_get_##filed_name(reflection_type_info_t<type> * info) { \
+#define IMPReflectionStruct(class_name) \
+    void _reflect_get_##class_name(reflection_type_info_t * info) { \
+        info->m_var_type = IMPReflectionTypeIdName(class_name); \
+        info->m_var_name = #class_name; \
+        info->m_this_type = typeid(class_name).name(); \
+        info->m_data = (void)(this); \
+    }
+
+#define IMPReflectionField(class_name, filed_name) \
+    void _reflect_get_##filed_name(reflection_type_info_t * info) { \
         info->m_var_type = IMPReflectionTypeIdName(filed_name); \
         info->m_var_name = #filed_name; \
         info->m_this_type =typeid(filed_name).name(); \
-        info->m_data =&(this->filed_name); \
+        info->m_data = (void*)(&this->filed_name); \
     }
 
 
@@ -94,36 +96,37 @@ do { \
     Reflection_Field_PUSH_MAP_9(s, filed_list, _1, _2, _3, _4, _5, _6, _7, _8, _9); \
     Reflection_Field_PUSH(s, filed_list, _10);
 
-#define Reflection_Field(s)
+#define Reflection_Field(s) \
+     IMPReflectionStruct(s)
 #define Reflection_Field_1(s, _1) \
-    IMPReflectionField(s, decltype(_1), _1)
+    IMPReflectionField(s, _1)
 #define Reflection_Field_2(s, _1, _2) \
     Reflection_Field_1(s, _1) \
-    IMPReflectionField(s, decltype(_2), _2)
+    IMPReflectionField(s, _2)
 #define Reflection_Field_3(s, _1, _2, _3) \
     Reflection_Field_2(s, _1, _2) \
-    IMPReflectionField(s,  decltype(_3), _3)
+    IMPReflectionField(s, _3)
 #define Reflection_Field_4(s, _1, _2, _3, _4) \
     Reflection_Field_3(s, _1, _2, _3) \
-    IMPReflectionField(s, decltype(_4), _4)
+    IMPReflectionField(s, _4)
 #define Reflection_Field_5(s, _1, _2, _3, _4, _5) \
     Reflection_Field_4(s, _1, _2, _3, _4) \
-    IMPReflectionField(s,  decltype(_5), _5)
+    IMPReflectionField(s, _5)
 #define Reflection_Field_6(s, _1, _2, _3, _4, _5, _6) \
     Reflection_Field_5(s, _1, _2, _3, _4, _5) \
-    IMPReflectionField(s,  decltype(_6), _6)
+    IMPReflectionField(s, _6)
 #define Reflection_Field_7(s, _1, _2, _3, _4, _5, _6, _7) \
    Reflection_Field_6(s, _1, _2, _3, _4, _5, _6) \
-    IMPReflectionField(s, decltype(_7), _7)
+    IMPReflectionField(s, _7)
 #define Reflection_Field_8(s, _1, _2, _3, _4, _5, _6, _7, _8) \
     Reflection_Field_7(s, _1, _2, _3, _4, _5, _6, _7) \
-    IMPReflectionField(s,  decltype(_8), _8)
+    IMPReflectionField(s, _8)
 #define Reflection_Field_9(s, _1, _2, _3, _4, _5, _6, _7, _8, _9) \
     Reflection_Field_8(s, _1, _2, _3, _4, _5, _6, _7, _8) \
-    IMPReflectionField(s,  decltype(_9), _9)
+    IMPReflectionField(s, _9)
 #define Reflection_Field_10(s, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10) \
     Reflection_Field_9(s, _1, _2, _3, _4, _5, _6, _7, _8, _9) \
-    IMPReflectionField(s,  decltype(_10), _10)
+    IMPReflectionField(s, _10)
 
 
 #define ReflectionFieldList(s, args_n, ...) \

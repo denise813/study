@@ -5,7 +5,7 @@ project(study)
 
 set(CMAKE_CXX_STANDARD 14) # 设置C++标准为C++14
 set(CMAKE_CXX_STANDARD_REQUIRED ON) # 必须使用C++14标准
-set(CMAKE_C_STANDARD 99)
+set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
 #===================== set path =====================
