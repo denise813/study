@@ -15,7 +15,7 @@ public:
     int item_a = 0;
     int item_b = 0;
 };
-REFLECT_STRUCT(DemoStructA, item_a);
+STATIC_REFLECT_STRUCT(DemoStructA, item_a);
 
 class DemoStructB : public RelectionObject
 {
@@ -24,7 +24,7 @@ public:
     int item_b = 0;
     DemoStructA item_c;
 };
-REFLECT_STRUCT(DemoStructB, item_a, item_c);
+STATIC_REFLECT_STRUCT(DemoStructB, item_a, item_c);
 
 class DemoStructC : public RelectionObject
 {
@@ -34,7 +34,7 @@ public:
     DemoStructA item_c;
     std::vector<DemoStructB> item_d;
 };
-REFLECT_STRUCT(DemoStructC, item_a, item_c, item_d);
+STATIC_REFLECT_STRUCT(DemoStructC, item_a, item_c, item_d);
 
 
 #endif

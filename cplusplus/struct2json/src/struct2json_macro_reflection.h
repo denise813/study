@@ -37,10 +37,9 @@ do { \
     REGISTER_MEMBER_OBJECT_EACH_FUNC_LIST(s, obj, root, f, Reflection_ARGN(__VA_ARGS__), __VA_ARGS__); \
 
 
-
 template <typename T, typename Func>
 constexpr void object_iterate_members(T & obj, cJSON *root, Func&& f) {}
-#define REFLECT_STRUCT(class_name, ...)                                           \
+#define STATIC_REFLECT_STRUCT(class_name, ...)                                           \
 template <typename Func>                                                          \
 constexpr void object_iterate_members(                                            \
           class_name & obj, cJSON *root, Func&& f) {                              \
