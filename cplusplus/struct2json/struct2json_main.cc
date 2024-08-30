@@ -19,7 +19,9 @@ int tst1()
     a.item_a = 4;
     a.item_b = 5;
     Struct2Json tools;
-    tools.toString(a);
+    std::string doc = tools.toString(a);
+    std::cout << "doc = " << std::endl <<
+                    doc << std::endl;
     return 0;
 }
 
@@ -38,7 +40,7 @@ int tst3()
 
 int main(int argc, char* argv[])
 {
-   //tst1();
+   tst1();
    tst2();
    //tst3();
 }
