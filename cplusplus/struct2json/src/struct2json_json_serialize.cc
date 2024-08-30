@@ -2,7 +2,7 @@
 #include <typeinfo>
 
 #include "cJSON.h"
-#include "struct2json_json_object.h"
+#include "struct2json_json_serialize.h"
 
 using namespace std;
 

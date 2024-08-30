@@ -1,5 +1,5 @@
-#ifndef _STAUCT2JSON_REFLECTION_H
-#define _STAUCT2JSON_REFLECTION_H
+#ifndef _STRUCT2JSON_MACRO_REFLECTION_H_
+#define _STRUCT2JSON_MACRO_REFLECTION_H_
 
 
 #define Reflection_ARGSEQ(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _n, ...) _n
@@ -24,17 +24,28 @@ do { \
      CALL_FUNC(s, obj, root, f, _2);
 #define REGISTER_MEMBER_OBJECT_EACH_FUNC_3(s, obj, root, f, _1, _2, _3) \
     REGISTER_MEMBER_OBJECT_EACH_FUNC_2(s, obj, root, f, _1, _2); \
-    CALL_FUNC(s, obj, func, _3);
+    CALL_FUNC(s, obj, root, f, _3);
 #define REGISTER_MEMBER_OBJECT_EACH_FUNC_4(s, obj, root, f, _1, _2, _3, _4) \
     REGISTER_MEMBER_OBJECT_EACH_FUNC_3(s, obj, root, f, _1, _2, _3); \
-    CALL_FUNC(s, obj, func, _4);
+    CALL_FUNC(s, obj, root, f, _4);
 #define REGISTER_MEMBER_OBJECT_EACH_FUNC_5(s, obj, root, f, _1, _2, _3, _4, _5) \
     REGISTER_MEMBER_OBJECT_EACH_FUNC_3(s, obj, root, f, _1, _2, _3, _4); \
-    CALL_FUNC(s, obj, func, _5);
+    CALL_FUNC(s, obj, root, f, _5);
 #define REGISTER_MEMBER_OBJECT_EACH_FUNC_LIST(s, obj, root, f, args_n, ...) \
     Reflection_MACRO_CONCAT(REGISTER_MEMBER_OBJECT_EACH_FUNC, args_n)(s, obj, root, f, __VA_ARGS__)
 #define REGISTER_CLASS_OBJECT_EACH_FUNC(s, obj, root, f, ...) \
     REGISTER_MEMBER_OBJECT_EACH_FUNC_LIST(s, obj, root, f, Reflection_ARGN(__VA_ARGS__), __VA_ARGS__); \
+
+
+
+template <typename T, typename Func>
+constexpr void object_iterate_members(T & obj, cJSON *root, Func&& f) {}
+#define REFLECT_STRUCT(class_name, ...)                                           \
+template <typename Func>                                                          \
+constexpr void object_iterate_members(                                            \
+          class_name & obj, cJSON *root, Func&& f) {                              \
+  REGISTER_CLASS_OBJECT_EACH_FUNC(class_name, obj, root, f, __VA_ARGS__);         \
+}
 
 
 #endif

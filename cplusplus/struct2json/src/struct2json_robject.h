@@ -1,9 +1,11 @@
-#ifndef _STAUCT2JSON_REFLECTION_OBJECT_H
-#define _STAUCT2JSON_REFLECTION_OBJECT_H
+#ifndef _STRUCT2JSON_ROBJECT_H_
+#define _STRUCT2JSON_ROBJECT_H_
+
 
 #include <string>
 #include "cJSON.h"
-#include "struct2json_reflection_def_func.h"
+#include "struct2json_macro_reflection.h"
+
 
 using namespace std;
 
@@ -32,15 +34,6 @@ public:
     RelectionClassFactory() = default;
     ~RelectionClassFactory() = default;
 };
-
-template <typename T, typename Func>
-constexpr void object_iterate_members(T & obj, cJSON *root, Func&& f) {}
-#define REFLECT_STRUCT(class_name, ...)                                           \
-template <typename Func>                                                          \
-constexpr void object_iterate_members(                                            \
-          class_name & obj, cJSON *root, Func&& f) {                              \
-  REGISTER_CLASS_OBJECT_EACH_FUNC(class_name, obj, root, f, __VA_ARGS__);         \
-}
 
 
 #endif

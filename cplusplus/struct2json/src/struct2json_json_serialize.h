@@ -1,5 +1,5 @@
-#ifndef _STAUCT2JSON_JSON_OBJECT_H
-#define _STAUCT2JSON_JSON_OBJECT_H
+#ifndef _STAUCT2JSON_JSON_SERIALIZE_H
+#define _STAUCT2JSON_JSON_SERIALIZE_H
 
 
 #include <string>
@@ -8,7 +8,7 @@
 #include "cJSON.h"
 
 #include "struct2json_type_traits.hpp"
-#include "struct2json_reflection_object.h"
+#include "struct2json_robject.h"
 
 
 using namespace std;

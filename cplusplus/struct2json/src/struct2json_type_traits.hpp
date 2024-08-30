@@ -1,5 +1,6 @@
-#ifndef _REFLECTION_TYPEINFO_H
-#define _REFLECTION_TYPEINFO_H
+#ifndef _STRUCT2JSON_TYPE_TRAITS_HPP_
+#define _STRUCT2JSON_TYPE_TRAITS_HPP_
+
 
 #include <typeinfo>
 #include <iostream>
@@ -93,6 +94,5 @@ struct element_type_traits<std::map<K,V,C,A>> {
 
 template <typename T>
 struct can_reflection_type_trait{};
-
 
 #endif
