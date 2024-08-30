@@ -19,8 +19,8 @@ file(GLOB_RECURSE STRUCT2JSON_SRC_CODES
 
 set(CODE_SRC ${STRUCT2JSON_SRC_CODES} ${CJSON_SRC_CODES})
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -save-temps=obj")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -save-temps=obj")
+#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -save-temps=obj")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -save-temps=obj")
 
 if (HAVE_CPPCHECK_CONTEXT)
     set(CEHCK_SRCS ${CODE_SRC})
