@@ -126,7 +126,7 @@ constexpr void json_item_deserialize(const char * item_name, cJSON *root, T & va
 };
 template<typename T, std::enable_if_t<std::is_base_of<RelectionObject,T>::value, int> = 0>
 constexpr void json_item_deserialize(const char * item_name, cJSON *root, T & value) {
-    cJSON j_item = cJSON_GetObjectItem(root, item_name);
+    cJSON * j_item = cJSON_GetObjectItem(root, item_name);
     jsonToObject(j_item, value);
     std::cout << "json_item_deserialize 1: " << typeid(value).name() << std::endl;
 };
@@ -143,7 +143,7 @@ constexpr void json_item_deserialize(const char * item_name, cJSON *root, T & va
     cJSON *j_array = cJSON_CreateArray();
     for (int i = 0; i < array_size; i++) {
         cJSON * j_item = cJSON_GetArrayItem(root, i);
-        using element_type = element_type_traits<T>;
+        using element_type = typename element_type_traits<T>::type;
         element_type data;
         create_struct_object(j_item, data);
         value.push_back(data);
@@ -156,7 +156,7 @@ template<typename T, std::enable_if_t<is_map_traits<T>::value, int> = 0>
 constexpr void json_item_deserialize(const char * item_name, cJSON *root, T & value) {
     cJSON j_item = cJSON_GetObjectItem(root, item_name);
     for(cJSON * j_itor = root->child; j_itor != NULL; j_itor = j_itor->next) {
-        using element_type = element_type_traits<T>;
+        using element_type = typename element_type_traits<T>::type;
         element_type data;
         create_struct_object(j_itor, data);
         value.insert(j_itor->string, data);
@@ -191,7 +191,7 @@ constexpr void create_struct_object(cJSON *root, T& value) {
     cJSON *j_array = cJSON_CreateArray();
     for (int i = 0; i < array_size; i++) {
         cJSON * j_item = cJSON_GetArrayItem(root, i);
-        using element_type = element_type_traits<T>;
+        using element_type = typename element_type_traits<T>::type;
         element_type data;
         create_struct_object(j_item, data);
         value.push_back(data);
@@ -201,7 +201,7 @@ constexpr void create_struct_object(cJSON *root, T& value) {
 template<typename T, std::enable_if_t<is_map_traits<T>::value, int> = 0>
 constexpr void create_struct_object(cJSON *root, T& value) {
     for(cJSON * j_itor = root->child; j_itor != NULL; j_itor = j_itor->next) {
-        using element_type = element_type_traits<T>;
+        using element_type = typename element_type_traits<T>::type;
         element_type data;
         create_struct_object(j_itor, data);
         value.insert(j_itor->string, data);

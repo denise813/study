@@ -49,7 +49,25 @@ int tst1()
     std::cout << 
                     "----------------deserialize----------------------" <<
                     std::endl;
+    
+    DemoStructA a2;
+    tools.fromString(a1_doc, a2);
+    std::cout << "doc a2.item_a= " << std::endl <<
+                    a2.item_a << std::endl;
 
+    DemoStructB b2;
+    tools.fromString(b1_doc, b2);
+    std::cout << "doc b2.item_a,b2.item_c.item_a = " << std::endl <<
+                    b2.item_a << 
+                    "," <<
+                    b2.item_c.item_a << std::endl;
+    
+    DemoStructC c2;
+    tools.fromString(c1_doc, c2);
+    std::cout << "doc c2.item_a,c2.item_c.item_a = " << std::endl <<
+                    c2.item_a << 
+                    "," <<
+                    c2.item_c.item_a << std::endl;
     return 0;
 }
 
