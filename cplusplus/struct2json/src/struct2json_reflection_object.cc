@@ -23,3 +23,10 @@ RelectionClassFactory * RelectionClassFactory::instance()
 {
     return nullptr;
 }
+
+void RelectionClassFactory::register_shared_construction(
+        const std::string & class_name,
+        construction_object_t construction)
+{
+    return;
+}

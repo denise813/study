@@ -15,7 +15,7 @@ public:
     int item_a = 0;
     int item_b = 0;
 };
-//REFLECT_STRUCT(DemoStructA, item_a);
+REFLECT_STRUCT(DemoStructA, item_a);
 
 class DemoStructB : public RelectionObject
 {

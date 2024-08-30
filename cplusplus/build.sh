@@ -18,7 +18,7 @@ mkdir -p ${install_dir}
 cd $build_dir  
 cmake3 -DCMAKE_INSTALL_PREFIX=${install_dir} \
     -DCMAKE_EXPORT_COMPILE_COMMANDS=1 $project_work_dir \
-    -DCMAKE_BUILD_TYPE=$build_type \
+    -DCMAKE_BUILD_TYPE=$build_type
 make
 make install
 cd -
