@@ -247,7 +247,7 @@ message(NOTICE "===================GET_GIT_INFO =========================\n"
 #endif(HAVE_FUSE_DEMO_CONTEXT)
 
 if (HAVE_JNI_CONTEXT)
-	 add_subdirectory("jni")
+    add_subdirectory("jni")
 endif(HAVE_JNI_CONTEXT)
 
 if (HAVE_STRUCT2JSON_CONTEXT)
