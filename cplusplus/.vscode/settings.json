@@ -1,0 +1,316 @@
+{
+    "files.exclude": {
+        "build/**": true,
+        "install/**": true
+    },
+    "files.encoding": "utf8",
+    "workbench.sideBar.location": "left",
+    // 界面ui的颜色在该参数下编辑
+    "workbench.colorCustomizations": {
+        //--------顶部菜单栏
+        //窗口处于活动状态时顶部菜单栏背景色
+        //"titleBar.activeBackground": "#002C39",
+        //窗口处于活动状态时顶部菜单栏前景色
+        // "titleBar.activeForeground": "#ff0000",
+        //顶部菜单栏边框颜色
+        //"titleBar.border": "#04799c",
+        //窗口处于非活动状态时顶部菜单栏背景色
+        //"titleBar.inactiveBackground": "#6c7679",
+        //窗口处于非活动状态时顶部菜单栏前景色
+        // "titleBar.inactiveForeground": "#ff0000",
+
+        //--------底部状态栏
+        // 底部状态栏#0e440e,#28556e,#00212B
+        //"statusBar.background": "#0e440e",
+        //没有打开文件夹时状态栏的背景色#00212B
+        // "statusBar.noFolderBackground": "#000",
+        //调试程序时状态栏的背景色
+        //"statusBar.debuggingBackground": "#038803",
+        //#93a1a1调试程序时状态栏的字体色
+        //"statusBar.debuggingForeground": "#eafdfd",
+        //状态栏分隔侧边栏和编辑器的边框颜色
+        // "statusBar.border": "#c288c4",
+        //"statusBar.foreground": "#93A1A1",
+        // "statusBarItem.remoteBackground": "#2AA19899",//#2AA19899
+        // "statusBarItem.prominentBackground": "#003847",//#003847
+        // "statusBarItem.prominentHoverBackground": "#f70505",//#003847
+        //调试工具栏背景颜色#00212B
+        // "debugToolBar.background": "#0a5329",
+        //异常小组件背景颜色#00212B
+        // "debugExceptionWidget.background": "#8ebcca",
+        //异常小组件边框颜色#AB395B
+        // "debugExceptionWidget.border": "#AB395B",
+
+        //--------资源管理器
+        // 资源管理器页面背景色
+        // "sideBar.background": "#000",
+        // 侧边栏节标题的边框颜色
+        // "sideBarSectionHeader.border": "#c48888",
+        // 侧边栏节标题的背景颜色
+        // "sideBarSectionHeader.background": "#ff0000",
+        // 侧边栏文件名颜色
+        // "sideBar.foreground": "#0be8f0",
+        // 侧边栏边框分隔活动栏的边框颜色
+        // "activityBar.border": "#1c5532",
+        // 侧边栏分隔编辑器的边框颜色
+        // "sideBar.border": "#8ac488",
+        // 侧边栏标题前景色
+        // "sideBarTitle.foreground": "#c48888",
+        //侧边栏节标题的前景色
+        // "sideBarSectionHeader.foreground": "#799ea3",
+        // 侧边栏节标题的背景颜色
+        // "sideBarSectionHeader.background": "#000",
+        // 侧边栏中的部分在拖放时的反馈颜色
+        // "sideBar.dropBackground": "#ff0000",
+
+        //--------资源管理器内文件列表
+        //选中文件时的背景色#005a6f
+        //"list.activeSelectionBackground": "#003440",
+        //选中文件非活动时时的背景色#003440
+        // "list.inactiveSelectionBackground": "#003440",
+        //选中文件时的前景色#dabb0d
+        // "list.activeSelectionForeground": "#e7c70e",
+        //选中文件非活动时时的前景色#058637
+        // "list.inactiveSelectionForeground": "#e7c70e",
+        //鼠标悬停文件上方时的背景色
+        // "list.hoverBackground": "#043a467a",
+        //鼠标悬停文件上方时的前景色
+        // "list.hoverForeground": "#e7c60e91",
+        // 包含错误的列表项的前景颜色
+        // "list.errorForeground": "#ff0000",
+
+        //--------终端控制台
+        // 控制台背景色
+        // "panel.background": "#164123",
+        // 控制台与编辑器分割线颜色#04799c
+        //"panel.border": "#04799ca4",
+        // 调试控制台筛选器边框颜色
+        // "panelInput.border": "#ff0000",
+        // 活动面板标题的下边框颜色
+        // "panelTitle.activeBorder": "#fdfdfd",
+        // 活动面板的标题颜色
+        //"panelTitle.activeForeground": "#faf8f8",
+        //非活动面板的标题颜色
+        // "panelTitle.inactiveForeground": "#ff0000",
+        // 终端的背景颜色
+        // "terminal.background": "#181818",
+        // 终端的前景颜色#26e045
+        // "terminal.foreground": "#50b962",
+        // 终端光标的背景色
+        // "terminalCursor.background": "#D8D8D8",
+        // 终端光标的前景色
+        // "terminalCursor.foreground": "#D8D8D8",
+        //"terminal.ansiBlack": "#181818",
+        //"terminal.ansiBlue": "#7CAFC2",
+        //"terminal.ansiBrightBlack": "#585858",
+        //"terminal.ansiBrightBlue": "#7CAFC2",
+        //"terminal.ansiBrightCyan": "#86C1B9",//#86C1B9
+        //"terminal.ansiBrightGreen": "#A1B56C",
+        //"terminal.ansiBrightMagenta": "#BA8BAF",
+        //"terminal.ansiBrightRed": "#AB4642",
+        //"terminal.ansiBrightWhite": "#F8F8F8",//#F8F8F8
+        //终端输入的颜色#F7CA88,#f5970a
+        //"terminal.ansiBrightYellow": "#caf50a",
+        //按F5时终端调试时的一串文字的颜色#86C1B9,#465c59
+        //"terminal.ansiCyan": "#305352",
+        //"terminal.ansiGreen": "#A1B56C",
+        //"terminal.ansiMagenta": "#BA8BAF",
+        //"terminal.ansiRed": "#AB4642",
+        //"terminal.ansiWhite": "#D8D8D8",//#D8D8D8
+        //"terminal.ansiYellow": "#F7CA88",//#F7CA88
+        //终端选中内容的背景颜色
+        // "terminal.selectionBackground": "#ff0000",
+
+        //--------侧边栏
+        //界面侧边栏（活动栏）
+        // "activityBar.background": "#000",
+        //界面侧边栏-选项卡选中边框颜色#5f7770
+        // "activityBar.activeBorder": "#5f7770",
+        //界面侧边栏-活动栏选项卡选中背景标记
+        //"activityBar.activeBackground": "#218376",
+        //界面侧边栏前景色
+        // "activityBar.foreground": "#f8a7a4",
+
+        //--------通知
+        //通知徽章背景色。743a8f
+        //"badge.background": "#6f78a8",
+        //通知徽章前景色
+        //"badge.foreground": "#fdfcfc",
+        //侧边活动栏通知徽章背景色
+        //"activityBarBadge.background":"#fdfcfc",
+        //侧边活动栏通知徽章前景色218376
+        //"activityBarBadge.foreground": "#003847",
+
+        //--------编辑器选项卡
+        //非活动选项卡的背景色
+        // "tab.inactiveBackground": "#000",
+        //非活动选项卡的前景色
+        // "tab.inactiveForeground": "#000",
+        //编辑器当前正在编辑文件选项卡标记  b8b9988c
+        // "tab.activeBackground": "#493f3f",
+        //当前鼠标悬停的选项卡背景色（编辑器活动组内）
+        //"tab.hoverBackground": "#3e666b",
+        //当前鼠标悬停的选项卡前景色（编辑器活动组内）
+        //"tab.hoverForeground": "#d8e0e2cb",
+        //活动组中活动选项卡的前景色e7c70e#2e9c4a#14d66b
+        //"tab.activeForeground": "#e7c70e",
+        //活动选项卡底部的边框
+        // "tab.activeBorder": "#92c488",
+        //两个文本编辑器之间的边框颜色
+        // "diffEditor.border": "#ff0000",
+        //将选项卡彼此分隔开的边框颜色#003847
+        // "tab.border": "#01303d",
+        //活动选项卡顶部的边框
+        //"tab.activeBorderTop": "#00d9ff",
+        //选项卡被悬停时用于突出显示的边框(在底部)
+        // "tab.hoverBorder": "#00d9ff",
+
+        //--------菜单栏
+        //顶部所选菜单栏
+        // "menubar.selectionBackground": "#C48888",
+        //菜单栏内所选项
+        // "menu.selectionBackground": "#73c720",
+        //菜单中所选菜单项的边框颜色
+        // "menu.selectionBorder": "#C48888",
+        //菜单项的前景颜色
+        // "menu.foreground": "#fdf4c1",
+        //菜单项的背景颜色
+        // "menu.background": "#c48888",
+        //菜单中分隔线的颜色
+        // "menu.separatorBackground": "#eb0c0c",
+
+        //--------编辑器
+        // 选中内容的背景颜色135564,#2e4e52
+        //"editor.selectionBackground": "#E6E6E6",
+        // "editor.findMatchBorder": "#ff0000",
+        // 单机点击代码后的颜色&与所选内容具有相同内容的区域颜色135564，135564ab
+        // "editor.selectionHighlightBackground": "#4f486da9",
+        // 与所选项内容相同的区域的边框颜色。
+        // "editor.selectionHighlightBorder": "#ff0000",
+        // 当前搜索匹配项所在行的背景色
+        // "editor.rangeHighlightBackground": "#ff0000",
+        // 当前搜索匹配项所在行的边框背景色
+        // "editor.rangeHighlightBorder": "#f1ebeb",
+        // "editor.selectionForeground": "#ee4444",
+        // 鼠标悬停内容的颜色
+        // "editor.hoverHighlightBackground": "#f03c81",
+        // 当前搜索匹配项的颜色
+        // "editor.findMatchBackground": "#ffee00",
+        // 其他搜索匹配项的颜色
+        // "editor.findMatchHighlightBackground": "#797874ef",
+        // 其他搜索匹配项的边框颜色
+        // "editor.findMatchHighlightBorder": "#ffee00cb",
+        // 匹配括号的背景色
+        // "editorBracketMatch.background": "#ff0000",
+        // 匹配括号的背景边框色
+        // "editorBracketMatch.border": "#ff0000",
+        // 编辑器光标背景色
+        // "editorCursor.background": "#f9faf9",
+        // 编辑器光标颜色
+        //"editorCursor.foreground": "#f9faf9",
+        //光标所在行高亮文本的背景颜色0f56687e
+        // "editor.lineHighlightBackground": "#0f56687e",
+        //光标所在行高亮文本的边框色
+        // "editor.lineHighlightBorder": "#d3d3d3",
+        // "textCodeBlock.background": "#99198e94",//9bf706
+        // 单机点击选择相同代码后的颜色(主要用于html标签)
+        // "editor.wordHighlightBackground": "#04fcc6",
+        // 编辑器导航线的背景色，导航线包括边缘符号和行号
+        // "editorGutter.background": "#e2e2e2",
+        // 编辑器行号颜色
+        // "editorLineNumber.foreground": "#acb9b8",
+        // 编辑器活动行号的颜色
+        // "editorLineNumber.activeForeground": "#000000",
+        // 编辑器背景颜色（这个设置会影响控制台背景色）
+        // "editor.background": "#cce8cf",
+        // 编辑器默认前景色(字体颜色)
+        // "editor.foreground": "#f5f0f0",
+        // 在编辑器中输入内容时联想列表内被选中项的背景色#005a6f,#7be00886,#7be00881
+        // "list.focusBackground": "#006f21",
+        // 编辑器组件(如查找/替换/输入联想框)背景颜色。#00212B,013b4d
+        // "editorWidget.background": "#013b4d",
+        // 编辑器小部件的边框颜色
+        // "editorWidget.border": "#078d7b",
+        // 编辑器小部件的前景色
+        // "editorWidget.foreground": "#ff0000",
+        // 编辑器悬停提示的背景颜色#004052
+        // "editorHoverWidget.background": "#004052",
+        // 编辑器小部件大小调整条的边框颜色
+        // "editorWidget.resizeBorder": "#0cbda5",
+        // 编辑器选中空白字符（如空格）时字符的颜色
+        // "editorWhitespace.foreground": "#e9e8f0d0",
+        // 编辑器选区在迷你地图中对应的标记颜色#274642
+        // "minimap.selectionHighlight": "#e4ebea",
+        // 编辑器缩进参考线的颜色#93A1A180
+        // "editorIndentGuide.background": "#93A1A180",
+        // 编辑器活动缩进参考线的颜色#C3E1E180
+        // "editorIndentGuide.activeBackground": "#C3E1E180",
+    },
+    //--------编辑器内容--代码段颜色&语法高亮颜色
+    "editor.tokenColorCustomizations": {
+        // "comments": "#9ea023da",//注释
+        // "keywords": "#0a0",//关键字
+        // "variables": "#f00",//变量名
+        // "strings": "#18170fbd",//字符串
+        // "functions": "#fc735bc9",//函数名
+        // "numbers": "#AE81FF",//数字
+        // "types": "#e0139c",//类型名
+        // "storage": "#FF0000",
+        // "enabled": true, // enable for all themes
+        "textMateRules": [
+            //entity.name.function",            直接调用的函数
+            //entity.name.type",                typedef定义的变量
+            //keyword.control",                 if switch break return
+            //keyword.operator.assignment",     =等号/赋值号 |= &=
+            //"keyword.operator.logical",       逻辑符号 && || !
+            //"constant.character.escape",       //"\r\n"\
+            //constant.other.placeholder",       //"%s %c"
+            //punctuation.definition.comment",   // /*注释开头
+            //constant.numeric",                 数字:50 10  0x20的20部分
+            //keyword.operator.word              and or not
+            //"scope":"meta",                    括号 函数声明的括号 调用的括号...
+            //punctuation.separator",            冒号 逗号
+            //punctuation.terminator",           分号
+            //storage.modifier",                 static const
+            //string.quoted.single",             单引号字符串
+            //string.quoted.double",             双引号字符串
+            //string.quoted.triple",             三引号字符串
+            //"storage.type",                    void int char 
+            //"punctuation.definition.string.begin",    左双引号
+            //"punctuation.definition.string.end",      右双引号
+            //{
+            //    "scope": "support.function",
+            //    "settings": {
+            //        "foreground": "#ffbb00",
+            //    }
+            //}
+        ]
+    },
+    "editor.semanticTokenColorCustomizations": {
+        "rules": {
+            // "*.static"
+            // "property" 属性
+            // "macro" 宏
+            // function 函数
+            // "variable.global"
+            // variable.local
+        //   "*.static": {
+        //       "foreground": "#ff0000",
+        //       "fontStyle": "bold"
+        //   },
+        }
+    },
+    // "editor.fontLigatures": null,
+
+    //设置不同语言的缩进距离
+    // "[python]": {
+    //     "editor.tabSize": 4
+    // },
+    //"workbench.colorTheme": "Default Light+",
+    "editor.tabSize": 4,
+    "editor.rulers": [80],
+    "editor.fontWeight": "500",
+    "editor.fontSize": 16.5,
+    "editor.fontFamily": "Consolas, '微软雅黑', monospace",
+    "window.zoomLevel": 0   
+}
