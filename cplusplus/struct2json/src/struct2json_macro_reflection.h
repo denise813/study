@@ -5,7 +5,8 @@
 #define Reflection_ARGSEQ(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _n, ...) _n
 #define Reflection_ARGRSEQ() 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0
 #define Reflection_MACRO_EXPEND(...) __VA_ARGS__
-#define Reflection_ARGMAX_HELPER(...) Reflection_MACRO_EXPEND(Reflection_ARGSEQ(__VA_ARGS__))
+#define Reflection_ARGMAX_HELPER(...) \
+                Reflection_MACRO_EXPEND(Reflection_ARGSEQ(__VA_ARGS__))
 #define  Reflection_ARGN(...)  Reflection_ARGMAX_HELPER(__VA_ARGS__, \
                 Reflection_ARGRSEQ())
 #define Reflection_MACRO_CONCAT1(A, B) A##_##B
@@ -39,11 +40,11 @@ do { \
 
 template <typename T, typename Func>
 constexpr void object_iterate_members(T & obj, cJSON *root, Func&& f) {}
-#define STATIC_REFLECT_STRUCT(class_name, ...)                                           \
+#define STATIC_REFLECT_STRUCT(cls_name, ...)                                           \
 template <typename Func>                                                          \
 constexpr void object_iterate_members(                                            \
-          class_name & obj, cJSON *root, Func&& f) {                              \
-  REGISTER_CLASS_OBJECT_EACH_FUNC(class_name, obj, root, f, __VA_ARGS__);         \
+          cls_name & obj, cJSON *root, Func&& f) {                              \
+    REGISTER_CLASS_OBJECT_EACH_FUNC(cls_name, obj, root, f, __VA_ARGS__);         \
 }
 
 
