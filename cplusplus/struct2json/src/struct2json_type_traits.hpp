@@ -2,6 +2,8 @@
 #define _STRUCT2JSON_TYPE_TRAITS_HPP_
 
 
+#include <stdint.h>
+
 #include <typeinfo>
 #include <iostream>
 #include <type_traits>
@@ -30,13 +32,6 @@ struct variable_traits<T Cls::*> {
 };
 
 #if 0
-template <typename T, typename = bool>
-struct is_reflection_object : std::false_type {};
-template <typename T>
-struct is_reflection_object<T, decltype((void)T::item_d, false)> : std::true_type {};
-#endif
-
-#if 0
 template <typename, template <typename...> class>
 struct is_specialization: std::false_type {};
  template <template <typename...> class Template, typename... Args>
@@ -50,6 +45,16 @@ template<>
 struct is_int_traits<int> : std::true_type {};
 
 template<typename T>
+struct is_uint64_traits : std::false_type {};
+template<>
+struct is_uint64_traits<uint64_t> : std::true_type {};
+
+template<typename T>
+struct is_double_traits : std::false_type {};
+template<>
+struct is_double_traits<double> : std::true_type {};
+
+template<typename T>
 struct is_string_traits : std::false_type {};
 template<>
 struct is_string_traits<std::string> : std::true_type {};
@@ -58,7 +63,6 @@ template<typename T, typename=bool>
 struct is_reflection_object : std::false_type {};
 template<typename T>
 struct is_reflection_object<T, decltype((bool)&T::is_reflection_object)> : std::true_type {};
-
 
 template <typename>
 struct is_vector_traits : std::false_type {};

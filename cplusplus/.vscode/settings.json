@@ -15,9 +15,9 @@
         // 顶部菜单栏边框颜色
         // "titleBar.border": "#808080",
         // 窗口处于非活动状态时顶部菜单栏背景色
-        // "titleBar.inactiveBackground": "#6c7679",
+        "titleBar.inactiveBackground": "#F3F3F3",
         // 窗口处于非活动状态时顶部菜单栏前景色
-        // "titleBar.inactiveForeground": "#ff0000",
+        "titleBar.inactiveForeground": "#202020",
 
         //--------菜单栏
         // 顶部所选菜单栏
@@ -89,17 +89,17 @@
 
         //--------资源管理器内文件列表
         // 选中文件时的背景色#005a6f
-        // "list.activeSelectionBackground": "#FF0000",
+         "list.activeSelectionBackground": "#c1d2de",
         // 选中文件非活动时时的背景色#003440
         "list.inactiveSelectionBackground": "#c1d2de",
         // 选中文件时的前景色#dabb0d
-        // "list.activeSelectionForeground": "#FF0000",
+         "list.activeSelectionForeground": "#FF0000",
         // 选中文件非活动时时的前景色#058637
         "list.inactiveSelectionForeground": "#800080",
         // 鼠标悬停文件上方时的背景色
-        // "list.hoverBackground": "#043a467a",
+         "list.hoverBackground": "#043a467a",
         // 鼠标悬停文件上方时的前景色
-        // "list.hoverForeground": "#e7c60e91",
+         "list.hoverForeground": "#e7c60e91",
         // 包含错误的列表项的前景颜色
         // "list.errorForeground": "#ff0000",
 
@@ -158,11 +158,11 @@
 
         //--------编辑器选项卡
         // 非活动选项卡的背景色
-         "tab.inactiveBackground": "#EBF0F6",
+        // "tab.inactiveBackground": "#EBF0F6",
         // 非活动选项卡的前景色
-         "tab.inactiveForeground": "#00000",
+        // "tab.inactiveForeground": "#00000",
         // 编辑器当前正在编辑文件选项卡标记  b8b9988c
-         "tab.activeBackground": "#E4FAF8",
+        // "tab.activeBackground": "#E4FAF8",
         // 当前鼠标悬停的选项卡背景色（编辑器活动组内）
         // "tab.hoverBackground": "#3e666b",
         // 当前鼠标悬停的选项卡前景色（编辑器活动组内）
@@ -208,7 +208,7 @@
         // 编辑器光标背景色
         // "editorCursor.background": "#f9faf9",
         // 编辑器光标颜色
-         "editorCursor.foreground": "#000000",
+        // "editorCursor.foreground": "#000000",
         // 光标所在行高亮文本的背景颜色0f56687e
         // "editor.lineHighlightBackground": "#0f56687e",
         // 光标所在行高亮文本的边框色
@@ -217,7 +217,7 @@
         // 单机点击选择相同代码后的颜色(主要用于html标签)
         // "editor.wordHighlightBackground": "#FFFF00",
         // 编辑器导航线的背景色，导航线包括边缘符号和行号
-         "editorGutter.background": "#E4FAF8", "#E4FAF8"
+        // "editorGutter.background": "#E4FAF8", "#E4FAF8"
         // 开启行号显示
         "editor.lineNumbers": "on",
         // 编辑器行号颜色
@@ -225,9 +225,9 @@
         // 编辑器活动行号的颜色
         // "editorLineNumber.activeForeground": "#000000",
         // 编辑器背景颜色（这个设置会影响控制台背景色）
-        "editor.background": "#E4FAF8",
+        //"editor.background": "#E4FAF8",
         // 编辑器默认前景色(字体颜色)
-         "editor.foreground": "#000091",
+        // "editor.foreground": "#000091",
         // 在编辑器中输入内容时联想列表内被选中项的背景色#005a6f,#7be00886,#7be00881
         // "list.focusBackground": "#006f21",
         // 编辑器组件(如查找/替换/输入联想框)背景颜色。#00212B,013b4d
@@ -251,7 +251,7 @@
     },
     //--------编辑器内容--代码段颜色&语法高亮颜色
     "editor.tokenColorCustomizations": {
-        "comments": "#800080",//注释
+        // "comments": "#800080",//注释
         //"keywords": "#FF0000",//关键字
         //"variables": "#1A32A9",//变量名
         //"strings": "#000000",//字符串
@@ -304,7 +304,7 @@
         }
     },
     // "editor.fontLigatures": null,
-     "workbench.colorTheme": "Default Light+",
+    // "workbench.colorTheme": "Default Light+",
     "editor.tabSize": 4,
     "editor.rulers": [80],
     "editor.fontWeight": "500",
