@@ -51,8 +51,8 @@ do { \
                     Reflection_ARGN(__VA_ARGS__), __VA_ARGS__); \
 
 
-template <typename T, typename Func>
-constexpr void object_iterate_members(T & obj, cJSON *root, Func&& f) {}
+//template <typename T, typename Func>
+//constexpr void object_iterate_members(T & obj, cJSON *root, Func&& f) {}
 #define STATIC_REFLECT_STRUCT(cls_name, ...)                                           \
 template <typename Func>                                                          \
 constexpr void object_iterate_members(                                            \
