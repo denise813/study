@@ -313,12 +313,12 @@ public:
     Struct2Json() = default;
     ~Struct2Json() = default;
     template<typename T>
-    std::string toString(T &object);
+    static std::string toString(T &object);
     template<typename T>
-    void fromString(std::string &json_doc, T & object);
+    static void fromString(std::string &json_doc, T & object);
 private:
-    std::shared_ptr<cJSON> stringToJson(std::string json_doc);
-    std::string JsonToString(cJSON * root);
+    static std::shared_ptr<cJSON> stringToJson(std::string json_doc);
+    static std::string JsonToString(cJSON * root);
 };
 
 
