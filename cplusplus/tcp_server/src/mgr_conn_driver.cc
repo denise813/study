@@ -1,19 +1,21 @@
-#include "tcp_mgr_driver.h"
+#include "mgr_conn_driver.h"
 
 
-TcpMgrDriver::TcpMgrDriver()
+TcpMgrDriver::TcpMgrDriver(int fd)
 {
+    set_fd(fd);
+    set_name("mgr");
 }
 
 TcpMgrDriver::~TcpMgrDriver()
 {
 }
 
-int TcpMgrDriver::init(TcpConnConfig * configPtr, TcpDriverMgr * connMgrPtr)
+int TcpMgrDriver::init(TcpConnConfig * configPtr, TcpPoller * pollerPtr)
 {
     TcpConfig * tcp_configPtr = dynamic_cast<TcpConfig*>(configPtr);
     m_configPtr = tcp_configPtr;
-    m_connMgrPtr = connMgrPtr;
+    m_pollerPtr = pollerPtr;
     return 0;
 }
 

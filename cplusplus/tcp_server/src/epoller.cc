@@ -6,10 +6,10 @@
 #include <sys/epoll.h>
 
 
-#include "tcp_conn.h"
+#include "epoller.h"
 
 
-int TcpConnMgr::init()
+int TcpEPollerMgr::init()
 {
     int rc = 0;
     int ep_fd = 0;
@@ -24,20 +24,20 @@ int TcpConnMgr::init()
     return 0;
 }
 
-int TcpConnMgr::exit()
+int TcpEPollerMgr::exit()
 {
     close(m_ep_fd);
     m_ep_fd = -1;
     return 0;
 }
 
-int TcpConnMgr::loop()
+int TcpEPollerMgr::loop()
 {
     event_loop();
     return 0;
 }
 
-int TcpConnMgr::exec_scheduled(void)
+int TcpEPollerMgr::exec_scheduled(void)
 {
     TcpConnDriverPtr event_drvPtr = nullptr;
     for (auto itor = m_sched_map.begin(); itor != m_sched_map.end();) {
@@ -49,7 +49,7 @@ int TcpConnMgr::exec_scheduled(void)
     return 0;
 }
 
-int TcpConnMgr::event_loop()
+int TcpEPollerMgr::event_loop()
 {
     int rc = 0;
     int nevent = 0;
@@ -82,7 +82,7 @@ int TcpConnMgr::event_loop()
     return 0;
 }
 
-int TcpConnMgr::add_event(int events, TcpConnDriverPtr &drvPtr)
+int TcpEPollerMgr::add_event(int events, TcpConnDriverPtr &drvPtr)
 {
     struct epoll_event ev;
     int rc = -1;
@@ -106,7 +106,7 @@ l_out:
     return rc;
 }
 
-TcpConnDriverPtr TcpConnMgr::lookup_event(int fd)
+TcpConnDriverPtr TcpEPollerMgr::lookup_event(int fd)
 {
     TcpConnDriverPtr event_drvPtr;
     auto itor = m_conn_map.find(fd);
@@ -119,7 +119,7 @@ l_out:
     return event_drvPtr;
 }
 
-void TcpConnMgr::del_event(int fd)
+void TcpEPollerMgr::del_event(int fd)
 {
     int rc = 0;
     TcpConnDriverPtr event_drvPtr;
@@ -140,7 +140,7 @@ l_out:
     return;
 }
 
-int TcpConnMgr::modify_event(int fd, int events)
+int TcpEPollerMgr::modify_event(int fd, int events)
 {
     int rc = 0;
     TcpConnDriverPtr event_drvPtr;
@@ -159,13 +159,13 @@ int TcpConnMgr::modify_event(int fd, int events)
     return epoll_ctl(m_ep_fd, EPOLL_CTL_MOD, fd, &ev);
 }
 
-void TcpConnMgr::add_sched_event(TcpConnDriverPtr &drvPtr)
+void TcpEPollerMgr::add_sched_event(TcpConnDriverPtr &drvPtr)
 {
     drvPtr->set_sched(1);
     m_sched_map.push_back(drvPtr);
 }
 
-void TcpConnMgr::remove_sched_event(TcpConnDriverPtr &drvPtr)
+void TcpEPollerMgr::remove_sched_event(TcpConnDriverPtr &drvPtr)
 {
     TcpConnDriverPtr event_drvPtr = drvPtr;
     event_drvPtr->set_sched(0);

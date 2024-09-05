@@ -3,10 +3,10 @@
 
 #include <memory>
 
-#include "src/tcp_config.h"
-#include "src/tcp_mgr.h"
-#include "src/tcp_log.h"
-#include "src/tcp_server.h"
+#include "src/config.h"
+#include "src/mgr.h"
+#include "src/log.h"
+#include "src/server.h"
 
 
 //#include "work.h"

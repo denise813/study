@@ -10,19 +10,19 @@
 #include <vector>
 #include "utility/string_format_tools.hpp"
 
-#include "tcp_mgr_driver.h"
-#include "tcp_mgr.h"
+#include "mgr_conn_driver.h"
+#include "mgr.h"
 
 
 using namespace std;
 
 
-int TcpMgr::init(TcpConfig * configPtr, TcpConnMgr * connMgrPtr)
+int TcpMgr::init(TcpConfig * configPtr, TcpEPollerMgr * pollerPtr)
 {
     int rc = 0;
 
     m_configPtr = configPtr;
-    m_connMgrPtr = connMgrPtr;
+    m_pollerPtr = pollerPtr;
     rc = create_mgr_sock();
     if (rc < 0) {
         goto l_out;
@@ -42,7 +42,7 @@ int TcpMgr::create_mgr_sock()
 {
     int rc = 0;
     int lock_fd = -1;
-    int mgr_fd = -1;
+    int fd = -1;
     std::string mgr_sock_path;
     struct sockaddr_un addr;
     TcpMgrDriverPtr handlerPtr;
@@ -66,8 +66,8 @@ int TcpMgr::create_mgr_sock()
         goto l_close_lock_fd;
     }
 
-    mgr_fd = socket(AF_LOCAL, SOCK_STREAM, 0);
-    if (mgr_fd < 0) {
+    fd = socket(AF_LOCAL, SOCK_STREAM, 0);
+    if (fd < 0) {
         rc = -errno;
         goto l_close_lock_fd;
     }
@@ -79,32 +79,31 @@ int TcpMgr::create_mgr_sock()
     memset(&addr, 0, sizeof(addr));
     addr.sun_family = AF_LOCAL;
     strcpy(addr.sun_path, mgr_sock_path.c_str());
-    rc = bind(mgr_fd, (struct sockaddr *) &addr, sizeof(addr));
+    rc = bind(fd, (struct sockaddr *) &addr, sizeof(addr));
     if (rc < 0) {
         rc = -errno;
-        goto l_close_mgr_fd;
+        goto l_close_fd;
     }
 
-    rc = listen(mgr_fd, 32);
+    rc = listen(fd, 32);
     if (rc < 0) {
         rc = -errno;
-        goto l_close_mgr_fd;
+        goto l_close_fd;
     }
 
-    handlerPtr = std::make_shared<TcpMgrDriver>();
-    handlerPtr->set_name("mgr");
-    handlerPtr->set_fd(mgr_fd);
+    handlerPtr = std::make_shared<TcpMgrDriver>(fd);
     drvPtr = std::dynamic_pointer_cast<TcpConnDriver>(handlerPtr);
-    rc = m_connMgrPtr->add_event(EPOLLIN, drvPtr);
+    rc = m_pollerPtr->add_event(EPOLLIN, drvPtr);
     if (rc < 0) {
-        goto l_close_mgr_fd;
+        goto l_close_fd;
     }
+    m_sock_fd = fd;
 
 l_out:
     return rc;
 
-l_close_mgr_fd:
-    close(mgr_fd);
+l_close_fd:
+    close(fd);
 l_close_lock_fd:
     close(lock_fd);
     goto l_out;

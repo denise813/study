@@ -1,5 +1,5 @@
-#ifndef _TCP_CONN_CONFIG_H_
-#define _TCP_CONN_CONFIG_H_
+#ifndef _CONN_CONFIG_H_
+#define _CONN_CONFIG_H_
 
 
 class TcpConnConfig

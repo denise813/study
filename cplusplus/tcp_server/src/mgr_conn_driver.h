@@ -1,18 +1,18 @@
-#ifndef _TCP_MGR_DRIVER_H_
-#define _TCP_MGR_DRIVER_H_
+#ifndef _MGR_CONN_DRIVER_H_
+#define _MGR_CONN_DRIVER_H_
 
 
-#include "tcp_config.h"
-#include "tcp_conn_driver.h"
+#include "config.h"
+#include "conn_driver.h"
 
 
 class TcpMgrDriver : public TcpConnDriver
 {
 public:
-    TcpMgrDriver();
+    TcpMgrDriver(int fd);
     virtual ~TcpMgrDriver();
 public:
-    int init(TcpConnConfig * configPtr, TcpDriverMgr * connMgrPtr);
+    int init(TcpConnConfig * configPtr, TcpPoller * pollerPtr);
     int exit();
 public:
     void set_sched(int flags) { return; }
@@ -22,7 +22,7 @@ public:
     int sched_handler();
 protected:
     TcpConfig * m_configPtr = nullptr;
-    TcpDriverMgr * m_connMgrPtr = nullptr;
+    TcpPoller * m_pollerPtr = nullptr;
 };
 
 

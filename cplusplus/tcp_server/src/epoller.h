@@ -1,5 +1,5 @@
-#ifndef _TCP_CONN_H
-#define _TCP_CONN_H
+#ifndef _EPOLLER_H
+#define _EPOLLER_H
 
 
 #include <memory>
@@ -7,17 +7,17 @@
 #include <list>
 
 
-#include "tcp_conn_driver.h"
+#include "conn_driver.h"
 
 
 using namespace std;
 
 
-class TcpConnMgr : public TcpDriverMgr
+class TcpEPollerMgr : public TcpPoller
 {
 public:
-    TcpConnMgr() = default;
-    virtual ~TcpConnMgr() = default;
+    TcpEPollerMgr() = default;
+    virtual ~TcpEPollerMgr() = default;
 public:
     int init();
     int exit();
@@ -40,7 +40,7 @@ private:
 };
 
 
-typedef std::shared_ptr<TcpConnMgr> TcpConnMgrPtr;
+typedef std::shared_ptr<TcpEPollerMgr> TcpEPollerMgrPtr;
 
 
 #endif

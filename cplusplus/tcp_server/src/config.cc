@@ -1,4 +1,4 @@
-#include "tcp_config.h"
+#include "config.h"
 
 
 TcpConfig::TcpConfig()

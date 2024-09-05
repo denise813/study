@@ -3,6 +3,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/epoll.h>
+#include <arpa/inet.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <string.h>
@@ -13,9 +14,10 @@
 #include <vector>
 
 #include "utility/string_format_tools.hpp"
-#include "tcp_mgr.h"
-#include "tcp_server.h"
-#include "tcp_conn.h"
+#include "mgr.h"
+#include "epoller.h"
+#include "server_conn_driver.h"
+#include "server.h"
 
 
 using namespace std;
@@ -63,6 +65,19 @@ l_close:
     goto l_out;
 }
 
+static int set_non_blocking(int fd)
+{
+    int rc = 0;
+
+    rc = fcntl(fd, F_GETFL);
+    if (rc < 0) {
+        return rc;
+    }
+    
+    rc = fcntl(fd, F_SETFL, rc | O_NONBLOCK);
+    return rc;
+}
+
 static int nr_file_adjust(void)
 {
     int rc = 0;
@@ -102,11 +117,11 @@ l_close:
     goto l_out;
 }
 
-static int lld_init(TcpConnConfig * configPtr, TcpDriverMgr * connMgrPtr)
+static int lld_init(TcpConnConfig * configPtr, TcpPoller * pollerPtr)
 {
     int rc = 0;
     for (auto itor : g_tcp_conn_drivers) {
-        rc = itor->init(configPtr, connMgrPtr);
+        rc = itor->init(configPtr, pollerPtr);
         if (rc < 0) {
             return rc;
         }
@@ -126,23 +141,44 @@ static void lld_exit(void)
     }
 }
 
-
 int TcpServer::init(TcpConfig* configPtr)
 {
+    int rc = 0;
+
     m_configPtr = configPtr;
-    m_connMgrptr = std::shared_ptr<TcpConnMgr>();
+    m_pollerPtr = std::shared_ptr<TcpEPollerMgr>();
     m_mgrPtr = std::make_shared<TcpMgr>();
 
-    m_connMgrptr->init();
-    m_mgrPtr->init(m_configPtr, m_connMgrptr.get());
+    rc = m_pollerPtr->init();
+    if (rc < 0) {
+        goto l_out;
+    }
+    rc = m_mgrPtr->init(m_configPtr, m_pollerPtr.get());
+    if (rc < 0) {
+        goto l_conMgr_exit;
+    }
 
-    return 0;
+    rc = lld_init(m_configPtr, m_pollerPtr.get());
+    if (rc < 0) {
+        goto l_mgr_exit;
+    }
+    rc = 0;
+
+l_out:
+    return rc;
+
+l_mgr_exit:
+    m_mgrPtr->exit();
+l_conMgr_exit:
+    m_pollerPtr->exit();
+    goto l_out;
 }
 
 int TcpServer::exit()
 {
+    lld_exit();
     m_mgrPtr->exit();
-    m_connMgrptr->exit();
+    m_pollerPtr->exit();
 
     return 0;
 }
@@ -154,7 +190,7 @@ int TcpServer::start()
 
 int TcpServer::loop()
 {
-    m_connMgrptr->loop();
+    m_pollerPtr->loop();
     return 0;
 }
 
@@ -162,7 +198,6 @@ int TcpServer::stop()
 {
     return 0;
 }
-
 
 int TcpServer::create_pid_file()
 {
@@ -197,6 +232,53 @@ l_close:
     close(fd);
 l_unlink:
      unlink(pid_file.c_str());
+    goto l_out;
+}
+
+
+int TcpServer::bind_listen()
+{
+    int rc = 0;
+    int fd = -1;
+    int opt = 1;
+    struct sockaddr_in address;
+    struct linger tmp = {0, 1};
+    TcpServerDriverPtr server_handlerPtr;
+    TcpConnDriverPtr handlerPtr;
+    
+
+    fd = socket(PF_INET, SOCK_STREAM, 0);
+    bzero(&address, sizeof(address));
+    address.sin_family = AF_INET;
+    address.sin_addr.s_addr = htonl(INADDR_ANY);
+    address.sin_port = htons(m_configPtr->get_port());
+
+    rc = setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &opt,
+                    sizeof(opt));
+    rc = setsockopt(fd, SOL_SOCKET, SO_LINGER, &tmp, sizeof(tmp));
+    rc = bind(fd, (struct sockaddr *)&address, sizeof(address));
+    if (rc < 0) {
+        goto l_close;
+    }
+
+    rc = listen(fd, 5);
+    if (rc < 0) {
+        goto l_close;
+    }
+
+    set_non_blocking(fd);
+
+    server_handlerPtr = std::make_shared<TcpServerDriver>(fd);
+    handlerPtr = std::dynamic_pointer_cast<TcpConnDriver>(server_handlerPtr);
+    m_pollerPtr->add_event(EPOLLIN, handlerPtr);
+    m_sock_fd = fd;
+    rc = 0;
+
+l_out:
+    return rc;
+
+l_close:
+    close(fd);
     goto l_out;
 }
 

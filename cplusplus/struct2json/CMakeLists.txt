@@ -36,5 +36,14 @@ endif(HAVE_CPPCHECK_CONTEXT)
 add_executable(${BIN_NAME} ${CURRENTDIR}/struct2json_main.cc ${CODE_SRC})
 target_link_libraries(${BIN_NAME} pthread dl)
 
-install(TARGETS ${BIN_NAME})
 
+add_custom_command(TARGET ${BIN_NAME}
+    POST_BUILD
+    COMMAND objcopy --only-keep-debug ${CMAKE_CURRENT_BINARY_DIR}/${BIN_NAME}
+                    ${CMAKE_CURRENT_BINARY_DIR}/${BIN_NAME}.debug
+    COMMAND objcopy --strip-all ${CMAKE_CURRENT_BINARY_DIR}/${BIN_NAME}
+)
+
+install(TARGETS ${BIN_NAME})
+#install(FILES ${CURRENT_DEBUG_OUT}/${BIN_NAME}.debug
+#                DESTINATION ${CURRENT_DEBUG_OUT}/debug)

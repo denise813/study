@@ -1,12 +1,12 @@
-#ifndef _TCP_SERVER_H_
-#define _TCP_SERVER_H_
+#ifndef _SERVER_H_
+#define _SERVER_H_
 
 
 #include <memory>
 
-#include "tcp_mgr.h"
-#include "tcp_conn.h"
-#include "tcp_config.h"
+#include "mgr.h"
+#include "epoller.h"
+#include "config.h"
 
 
 using namespace std;
@@ -25,9 +25,10 @@ public:
     int exit();
 private:
     int create_pid_file();
+    int bind_listen();
 private:
     TcpMgrPtr m_mgrPtr;
-    TcpConnMgrPtr m_connMgrptr;
+    TcpEPollerMgrPtr m_pollerPtr;
     TcpConfig* m_configPtr;
     int m_sock_fd = 0;
 };

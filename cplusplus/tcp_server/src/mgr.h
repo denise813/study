@@ -1,10 +1,10 @@
-#ifndef _TCP_MGR_H
-#define _TCP_MGR_H
+#ifndef _MGR_H
+#define _MGR_H
 
 
 #include <memory>
-#include "tcp_config.h"
-#include "tcp_conn.h"
+#include "config.h"
+#include "epoller.h"
 
 
 using namespace std;
@@ -16,13 +16,13 @@ public:
     TcpMgr() = default;
     virtual ~TcpMgr() = default;
 public:
-    int init(TcpConfig * configPtr, TcpConnMgr * connMgrPtr);
+    int init(TcpConfig * configPtr, TcpEPollerMgr  * pollerPtr);
     int exit();
 private:
     int create_mgr_sock();
 private:
     TcpConfig* m_configPtr = nullptr;
-    TcpConnMgr * m_connMgrPtr = nullptr;
+    TcpEPollerMgr * m_pollerPtr = nullptr;
     int m_sock_fd = 0;
 };
 

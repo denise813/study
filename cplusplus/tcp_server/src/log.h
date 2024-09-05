@@ -1,5 +1,5 @@
-#ifndef _TCP_LOG_H_
-#define _TCP_LOG_H_
+#ifndef _LOG_H_
+#define _LOG_H_
 
 
 #include "logging/logging.h"

@@ -251,7 +251,7 @@ if (HAVE_JNI_CONTEXT)
 endif(HAVE_JNI_CONTEXT)
 
 if (HAVE_STRUCT2JSON_CONTEXT)
-    #add_subdirectory("struct2json")
+    add_subdirectory("struct2json")
     add_subdirectory("tcp_server")
 endif(HAVE_STRUCT2JSON_CONTEXT)
 # --------- tools projects ------------------

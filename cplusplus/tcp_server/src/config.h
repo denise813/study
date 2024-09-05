@@ -4,13 +4,14 @@
 
 #include <memory>
 
-#include "tcp_conn_config.h"
+#include "conn_config.h"
 
 
 using namespace std;
 
 typedef struct tcp_config
 {
+    std::string m_ip;
     int m_port = 0;
     bool m_is_deamon = false;
     std::string m_etc_dir;
@@ -31,6 +32,7 @@ public:
 public:
     int get_port() { return m_config.m_port; }
     bool is_deamon() { return m_config.m_is_deamon; }
+    std::string get_host() { return m_config.m_ip; }
     std::string get_etc_dir() { return m_config.m_etc_dir; }
     std::string get_run_dir() { return m_config.m_run_dir; }
     std::string get_process_name() { return m_config.m_process_name; }
