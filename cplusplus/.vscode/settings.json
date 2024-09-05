@@ -1,3 +1,4 @@
+// https://blog.csdn.net/2401_83116349/article/details/140886108
 {
     "files.exclude": {
         "build/**": true,
@@ -18,8 +19,6 @@
         "titleBar.inactiveBackground": "#F3F3F3",
         // 窗口处于非活动状态时顶部菜单栏前景色
         "titleBar.inactiveForeground": "#202020",
-
-        //--------菜单栏
         // 顶部所选菜单栏
         // "menubar.selectionBackground": "#C48888",
         // 菜单栏内所选项
@@ -39,8 +38,8 @@
         // 没有打开文件夹时状态栏的背景色#00212B
         // "statusBar.noFolderBackground": "#000",
         // 调试程序时状态栏的背景色
-        //"statusBar.debuggingBackground": "#038803",
-        //#93a1a1调试程序时状态栏的字体色
+        // "statusBar.debuggingBackground": "#038803",
+        // #93a1a1调试程序时状态栏的字体色
         //"statusBar.debuggingForeground": "#eafdfd",
         // 状态栏分隔侧边栏和编辑器的边框颜色
         // "statusBar.border": "#c288c4",
@@ -67,7 +66,7 @@
 
         //--------资源管理器
         // 资源管理器页面背景色
-         "sideBar.background": "#c1d2de",
+         "sideBar.background": "#acbac4",
         // 侧边栏节标题的边框颜色
         // "sideBarSectionHeader.border": "#c48888",
         // 侧边栏节标题的背景颜色
@@ -83,15 +82,14 @@
         // 侧边栏节标题的前景色
          "sideBarSectionHeader.foreground": "#000000",
         // 侧边栏节标题的背景颜色
-         "sideBarSectionHeader.background": "#c1d2de",
+         "sideBarSectionHeader.background": "#778188",
         // 侧边栏中的部分在拖放时的反馈颜色
         // "sideBar.dropBackground": "#ff0000",
-
         //--------资源管理器内文件列表
         // 选中文件时的背景色#005a6f
          "list.activeSelectionBackground": "#c1d2de",
         // 选中文件非活动时时的背景色#003440
-        "list.inactiveSelectionBackground": "#c1d2de",
+        "list.inactiveSelectionBackground": "#9eacb5",
         // 选中文件时的前景色#dabb0d
          "list.activeSelectionForeground": "#FF0000",
         // 选中文件非活动时时的前景色#058637
@@ -102,21 +100,19 @@
          "list.hoverForeground": "#e7c60e91",
         // 包含错误的列表项的前景颜色
         // "list.errorForeground": "#ff0000",
-
         //--------通知
         // 通知徽章背景色。743a8f
         // "badge.background": "#6f78a8",
         // 通知徽章前景色
-        // "badge.foreground": "#fdfcfc",
+        // "badge.foreground": "#000000",
         // 侧边活动栏通知徽章背景色
         // "activityBarBadge.background":"#fdfcfc",
         // 侧边活动栏通知徽章前景色218376
-        // "activityBarBadge.foreground": "#003847",
-
+        // "activityBarBadge.foreground": "#000000",
 
         //--------终端控制台
         // 控制台背景色
-        // "panel.background": "#164123",
+        "panel.background": "#E2E2E2",
         // 控制台与编辑器分割线颜色#04799c
         //"panel.border": "#04799ca4",
         // 调试控制台筛选器边框颜色
@@ -124,13 +120,13 @@
         // 活动面板标题的下边框颜色
         // "panelTitle.activeBorder": "#fdfdfd",
         // 活动面板的标题颜色
-        //"panelTitle.activeForeground": "#faf8f8",
+         "panelTitle.activeForeground": "#000000",
         // 非活动面板的标题颜色
-        // "panelTitle.inactiveForeground": "#ff0000",
+         "panelTitle.inactiveForeground": "#808080",
         // 终端的背景颜色
-        // "terminal.background": "#181818",
+        // "terminal.background": "#E4FAF8",
         // 终端的前景颜色#26e045
-        // "terminal.foreground": "#50b962",
+         "terminal.foreground": "#000000",
         // 终端光标的背景色
         // "terminalCursor.background": "#D8D8D8",
         // 终端光标的前景色
@@ -155,32 +151,41 @@
         // "terminal.ansiYellow": "#F7CA88",//#F7CA88
         // 终端选中内容的背景颜色
         // "terminal.selectionBackground": "#ff0000",
+        "outputView.background": "#E4FAF8",
 
         //--------编辑器选项卡
+        // 修改保存显示
+        "editor.mouseWheelZoom": true,
+        "editorGroupHeader.tabsBackground": "#E2E2E2",
+        //"editorHoverWidget.foreground":"#000000",
+        //"editorHoverWidget.border":"#000000",
+        //"button.background": "#FFFFFF",
+        "editorGroup.dropBackground": "#000000",
+        //"scm.providerBadge.background": "#000000",
+        //"scm.providerBadge.foreground": "#000000",
         // 非活动选项卡的背景色
-        // "tab.inactiveBackground": "#EBF0F6",
+         "tab.inactiveBackground": "#C2C2C2",
         // 非活动选项卡的前景色
-        // "tab.inactiveForeground": "#00000",
+         "tab.inactiveForeground": "#000000",
         // 编辑器当前正在编辑文件选项卡标记  b8b9988c
-        // "tab.activeBackground": "#E4FAF8",
+         "tab.activeBackground": "#E2E2E2",
         // 当前鼠标悬停的选项卡背景色（编辑器活动组内）
-        // "tab.hoverBackground": "#3e666b",
+         "tab.hoverBackground": "#3e666b",
         // 当前鼠标悬停的选项卡前景色（编辑器活动组内）
         // "tab.hoverForeground": "#d8e0e2cb",
         // 活动组中活动选项卡的前景色e7c70e#2e9c4a#14d66b
-        // "tab.activeForeground": "#e7c70e",
+        // "tab.activeForeground": "#000000",
         // 活动选项卡底部的边框
         // "tab.activeBorder": "#92c488",
         // 两个文本编辑器之间的边框颜色
-        // "diffEditor.border": "#ff0000",
+        // "diffEditor.border": "#FFFF00",
         // 将选项卡彼此分隔开的边框颜色#003847
-        // "tab.border": "#01303d",
+        // "tab.border": "#C2C2C2",
         // 活动选项卡顶部的边框
-        // "tab.activeBorderTop": "#00d9ff",
+        //"tab.activeBorderTop": "#FFFFFF",
         // 选项卡被悬停时用于突出显示的边框(在底部)
-        // "tab.hoverBorder": "#00d9ff",
-
-        //--------编辑器
+        //"tab.hoverBorder": "#FFFFFF",
+        //"editorSuggestWidget.background": "#F3F3F3",
         // 选中内容的背景颜色135564,#2e4e52
         // "editor.selectionBackground": "#E6E6E6",
         // "editor.findMatchBorder": "#ff0000",
@@ -210,9 +215,9 @@
         // 编辑器光标颜色
         // "editorCursor.foreground": "#000000",
         // 光标所在行高亮文本的背景颜色0f56687e
-        // "editor.lineHighlightBackground": "#0f56687e",
+        // "editor.lineHighlightBackground": "#E4FAF8",
         // 光标所在行高亮文本的边框色
-        // "editor.lineHighlightBorder": "#d3d3d3",
+        // "editor.lineHighlightBorder": "#E4FAF8",
         // "textCodeBlock.background": "#99198e94",//9bf706
         // 单机点击选择相同代码后的颜色(主要用于html标签)
         // "editor.wordHighlightBackground": "#FFFF00",
@@ -225,7 +230,7 @@
         // 编辑器活动行号的颜色
         // "editorLineNumber.activeForeground": "#000000",
         // 编辑器背景颜色（这个设置会影响控制台背景色）
-        //"editor.background": "#E4FAF8",
+        "editor.background": "#eef9f9ba",
         // 编辑器默认前景色(字体颜色)
         // "editor.foreground": "#000091",
         // 在编辑器中输入内容时联想列表内被选中项的背景色#005a6f,#7be00886,#7be00881
@@ -233,9 +238,9 @@
         // 编辑器组件(如查找/替换/输入联想框)背景颜色。#00212B,013b4d
         // "editorWidget.background": "#013b4d",
         // 编辑器小部件的边框颜色
-        // "editorWidget.border": "#078d7b",
+         "editorWidget.border": "#078d7b",
         // 编辑器小部件的前景色
-        // "editorWidget.foreground": "#ff0000",
+        // "editorWidget.foreground": "#E2E2E2",
         // 编辑器悬停提示的背景颜色#004052
         // "editorHoverWidget.background": "#004052",
         // 编辑器小部件大小调整条的边框颜色
@@ -252,14 +257,12 @@
     //--------编辑器内容--代码段颜色&语法高亮颜色
     "editor.tokenColorCustomizations": {
         // "comments": "#800080",//注释
-        //"keywords": "#FF0000",//关键字
-        //"variables": "#1A32A9",//变量名
-        //"strings": "#000000",//字符串
-        //"functions": "#80B124",//函数名
-        //"numbers": "#FF0000",//数字
-        //"types": "#348DE5",//类型名
-        // "storage": "#FF0000",
-        "enabled": true, // enable for all themes
+        // "keywords": "#80B124",//关键字
+        // "variables": "#1A32A9",//变量名
+        // "strings": "#80B124",//字符串
+        // "functions": "#1A32A9",//函数名
+        // "numbers": "#FF0000",//数字
+        // "types": "#348DE5",//类型名
         "textMateRules": [
             //entity.name.function",            直接调用的函数
             //entity.name.type",                typedef定义的变量
@@ -284,32 +287,113 @@
             //{
             //    "scope": "entity.name.function",
             //    "settings": {
-            //        "foreground": "#F4B38E",
+            //        "foreground": "#ca723f",
+            //        "fontStyle":"bold",
             //    }
             //}
+            {
+                "scope": [
+                    "entity.name.function", // 函数
+                    "keyword.operator.sizeof" // sizeof
+                ],
+                "settings": {
+                    "foreground": "#1fd137",
+                    "fontStyle": "italic"
+                }
+            },{
+                "scope": [
+                    "entity.name.type", // typedef 类型
+                    "storage.type.built-in.primitive.c", //自带的类型
+                    "storage.type", // struct关键字
+                ],
+                "settings": {
+                    "foreground": "#348DE5",
+                    "fontStyle": "bold"
+                }
+            },{
+                "scope": [
+                    "variable.other.global", //全局变量
+                ],
+                "settings": {
+                    "foreground": "#bd9924",
+                    "fontStyle": "italic"
+                }
+            },{
+                "scope": [
+                    "entity.name.function.preprocessor", // 宏定义
+                ],
+                "settings": {
+                    "foreground": "#971818",
+                    "fontStyle": "italic bold"
+                }
+            },
+            {
+                "scope": [
+                    "variable.other.local", // 局部变量
+                    "variable.parameter", // 形参
+                ],
+                "settings": {
+                    "foreground": "#00b7ff",
+                    "fontStyle": "italic"
+                }
+            },
+            {
+                "scope": [
+                    "variable.other.property", // 结构体的字段
+                ],
+                "settings": {
+                    "foreground": "#1652c2",
+                    "fontStyle": "bold"
+                }
+            },
+            {
+                "scope": [
+                    // "keyword", // typedef
+                    "keyword.control", // if, else, return
+                    "storage.modifier", // const, static
+                ],
+                "settings": {
+                    "foreground": "#ffff00",
+                    "fontStyle": "italic"
+                }
+            },
+            {
+                "scope": [
+                    "constant.numeric" // 数值
+                ],
+                "settings": {
+                    "foreground": "#22daac",
+                    "fontStyle": "italic"
+                }
+            },
         ]
     },
     "editor.semanticTokenColorCustomizations": {
         "rules": {
             // "*.static"
-            // "property" 属性
-            // "macro" 宏
+            // "property" //属性
+            //"macro" 宏
             // function 函数
             // "variable.global"
             // variable.local
-        //   "*.static": {
-        //       "foreground": "#ff0000",
-        //       "fontStyle": "bold"
-        //   },
-        }
+            //"macro": {
+            //   "foreground": "#2a3b6a",
+            //  "fontStyle": "bold",
+           //},
+        },
     },
     // "editor.fontLigatures": null,
     // "workbench.colorTheme": "Default Light+",
     "editor.tabSize": 4,
     "editor.rulers": [80],
     "editor.fontWeight": "500",
-    "editor.fontSize": 18.5,
+    "editor.fontSize": 16.5,
     "editor.fontFamily": "Consolas, '微软雅黑', monospace",
     "window.zoomLevel": 0,
-    "workbench.settings.editor": "ui"
+    "workbench.settings.editor": "ui",
+    "workbench.editor.enablePreviewFromQuickOpen": true,
+    "workbench.editor.highlightModifiedTabs": true,
+    "workbench.editor.pinnedTabsOnSeparateRow": true,
+    "workbench.editor.scrollToSwitchTabs": true,
+    "workbench.editor.tabActionLocation": "left"
 }
